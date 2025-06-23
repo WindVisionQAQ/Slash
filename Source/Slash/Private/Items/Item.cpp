@@ -3,26 +3,30 @@
 
 #include "Items/Item.h"
 #include "Slash/DebugMacros.h"
+#include "Components/StaticMeshComponent.h"	
 
 AItem::AItem()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMeshComponent"));
+	RootComponent = ItemMesh;
 }
 
 void AItem::BeginPlay()
 {
 	Super::BeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("AItem::BeginPlay"));
-	if (GEngine)
-	{
-		// Add debug info in c++ code that can be seen in PIE.
-		GEngine->AddOnScreenDebugMessage(1, 60.0f, FColor::Cyan, TEXT("AItem::BeginPlay OnScreenDebugMessage"));
-	}
-	FVector StartLocation = GetActorLocation();
-	FVector EndLocation = StartLocation + GetActorForwardVector() * 100.f;
-	DRAW_SPHERE(GetActorLocation());
-	DRAW_VECTOR(StartLocation, EndLocation);
+}
+
+float AItem::TransformedSin()
+{
+	return Amplitude * FMath::Sin(TimeConstant * RunningTime);
+}
+
+float AItem::TransformedCos()
+{
+	return Amplitude* FMath::Cos(TimeConstant * RunningTime);
 }
 
 void AItem::Tick(float DeltaTime)
@@ -36,5 +40,7 @@ void AItem::Tick(float DeltaTime)
 		//UE_LOG(LogTemp, Warning, TEXT("%s"), *LogMessage);
 		GEngine->AddOnScreenDebugMessage(2, 60.f, FColor::Purple, LogMessage);
 	}
+
+	RunningTime += DeltaTime;
 }
 
