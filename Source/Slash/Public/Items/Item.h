@@ -4,9 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Characters/SlashCharacterTypes.h"
 #include "Item.generated.h"
 
 class UStaticMeshComponent;
+class USphereComponent;
+
+enum class EItemState : uint8
+{
+	EIS_Hovering,
+	EIS_Equipped,
+};
 
 UCLASS()
 class SLASH_API AItem : public AActor
@@ -25,6 +33,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sine Parameters")
 	float TimeConstant = 5.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Equip)
+	ECharacterState CharacterStateOnEquipped = ECharacterState::ECS_EquippedOneHandedWeapon;
+
+	UPROPERTY(EditDefaultsOnly)
+	FName ItemAttachSocketName = TEXT("RightHandSocket");
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UStaticMeshComponent* ItemMesh;
+
+	EItemState ItemState = EItemState::EIS_Hovering;
+
 	UFUNCTION(BlueprintPure)
 	float TransformedSin();
 
@@ -33,13 +52,24 @@ protected:
 
 	template <typename T>
 	T Avg(T First, T Second);
+
+	UFUNCTION()
+	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+public:
+	FORCEINLINE ECharacterState GetItemCharacterStateOnEquipped() const { return CharacterStateOnEquipped; }
+	FORCEINLINE FName GetItemAttachSocketName() const { return ItemAttachSocketName; }
+
 private:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float RunningTime;
 
 	UPROPERTY(VisibleAnywhere)
-	UStaticMeshComponent* ItemMesh;
+	USphereComponent* SphereComp;
 
 };
 

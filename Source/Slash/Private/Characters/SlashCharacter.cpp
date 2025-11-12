@@ -9,6 +9,9 @@
 #include "GroomComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Items/Item.h"
+#include "Items/Weapon.h"
+#include "Animation/AnimMontage.h"
 
 ASlashCharacter::ASlashCharacter()
 {
@@ -52,29 +55,9 @@ void ASlashCharacter::BeginPlay()
 	}
 }
 
-void ASlashCharacter::MoveForward(float Value)
-{
-	const FRotator ControlRotation = GetControlRotation();
-	FRotator ControlRotation_YawOnly(0.f, ControlRotation.Yaw, 0.f);
-	FVector ForwardVector = UKismetMathLibrary::GetForwardVector(ControlRotation_YawOnly);
-	AddMovementInput(ForwardVector, Value);
-}
-
-void ASlashCharacter::MoveRight(float Value)
-{
-	const FRotator ControlRotation = GetControlRotation();
-	FRotator ControlRotation_YawOnly(0.f, ControlRotation.Yaw, 0.f);
-	FVector ForwardVector = UKismetMathLibrary::GetRightVector(ControlRotation_YawOnly);
-	AddMovementInput(ForwardVector, Value);
-}
-
-void ASlashCharacter::Turn(float Value)
-{
-	AddControllerYawInput(Value);
-}
-
 void ASlashCharacter::Move(const FInputActionValue& Value)
 {
+	if (ActionState == EActionState::EAS_Attacking) return;
 	const FVector2D MoveValue = Value.Get<FVector2D>();
 	const FRotator ControlRotation = GetControlRotation();
 	FRotator ControlRotation_YawOnly(0.f, ControlRotation.Yaw, 0.f);
@@ -94,6 +77,50 @@ void ASlashCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
+void ASlashCharacter::EquipItem(const FInputActionValue& Value)
+{
+	AWeapon* Weapon = Cast<AWeapon>(OverlappingItem);
+	if (!Weapon) return;
+	Weapon->Equip(GetMesh(), Weapon->GetItemAttachSocketName());
+	CharacterState = Weapon->GetItemCharacterStateOnEquipped();
+}
+
+void ASlashCharacter::Attack(const FInputActionValue& Value)
+{
+	if (CanAttack())
+	{
+		PlayAttackMontage();
+		ActionState = EActionState::EAS_Attacking;
+	}
+}
+
+bool ASlashCharacter::CanAttack()
+{
+	return CharacterState != ECharacterState::ECS_UnEquipped && ActionState == EActionState::EAS_Unoccupied;
+}
+
+void ASlashCharacter::PlayAttackMontage()
+{
+	if (!GetMesh()) return;
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (!AnimInstance || !AttackMontage) return;
+	AnimInstance->Montage_Play(AttackMontage);
+	int32 Selection = FMath::RandRange(0, 1);
+	FName SectionName = FName();
+	switch (Selection)
+	{
+	case 0:
+		SectionName = FName("Attack1");
+		break;
+	case 1:
+		SectionName = FName("Attack2");
+		break;
+	default:
+		break;
+	}
+	AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
+}
+
 void ASlashCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -104,17 +131,13 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-// 	if (PlayerInputComponent)
-// 	{
-// 		PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ASlashCharacter::MoveForward);
-// 		PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &ASlashCharacter::MoveRight);
-// 		PlayerInputComponent->BindAxis(TEXT("Turn"), this, &ASlashCharacter::Turn);
-// 	}
-
 	if (UEnhancedInputComponent* EnhancedInput = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Move);
 		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Look);
+		EnhancedInput->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		EnhancedInput->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ASlashCharacter::EquipItem);
+		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack);
 	}
 }
 
