@@ -79,10 +79,29 @@ void ASlashCharacter::Look(const FInputActionValue& Value)
 
 void ASlashCharacter::EquipItem(const FInputActionValue& Value)
 {
-	AWeapon* Weapon = Cast<AWeapon>(OverlappingItem);
-	if (!Weapon) return;
-	Weapon->Equip(GetMesh(), Weapon->GetItemAttachSocketName());
-	CharacterState = Weapon->GetItemCharacterStateOnEquipped();
+	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->Equip(GetMesh(), OverlappingWeapon->GetItemAttachSocketName());
+		OverlappingItem = nullptr;
+		EquippedWeapon = OverlappingWeapon;
+		CharacterState = OverlappingWeapon->GetItemCharacterStateOnEquipped();
+	}
+	else
+	{
+		if (CanDisarm())
+		{
+			PlayEquipMontage(FName("Disarm"));
+			CharacterState = ECharacterState::ECS_UnEquipped;
+		}
+		else if (CanArm())
+		{
+			PlayEquipMontage(FName("Arm"));
+			check(EquippedWeapon);
+			CharacterState = EquippedWeapon->GetItemCharacterStateOnEquipped();
+		}
+	}
+
 }
 
 void ASlashCharacter::Attack(const FInputActionValue& Value)
@@ -97,6 +116,20 @@ void ASlashCharacter::Attack(const FInputActionValue& Value)
 bool ASlashCharacter::CanAttack()
 {
 	return CharacterState != ECharacterState::ECS_UnEquipped && ActionState == EActionState::EAS_Unoccupied;
+}
+
+bool ASlashCharacter::CanArm()
+{
+	return ActionState == EActionState::EAS_Unoccupied &&
+		CharacterState == ECharacterState::ECS_UnEquipped &&
+		EquippedWeapon;
+}
+
+bool ASlashCharacter::CanDisarm()
+{
+	return ActionState == EActionState::EAS_Unoccupied &&
+		CharacterState != ECharacterState::ECS_UnEquipped &&
+		EquippedWeapon;
 }
 
 void ASlashCharacter::PlayAttackMontage()
@@ -119,6 +152,15 @@ void ASlashCharacter::PlayAttackMontage()
 		break;
 	}
 	AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
+}
+
+void ASlashCharacter::PlayEquipMontage(FName SectionName)
+{
+	if (!GetMesh()) return;
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (!AnimInstance || !EquipMontage) return;
+	AnimInstance->Montage_Play(EquipMontage);
+	AnimInstance->Montage_JumpToSection(SectionName, EquipMontage);
 }
 
 void ASlashCharacter::Tick(float DeltaTime)

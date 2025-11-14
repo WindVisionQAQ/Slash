@@ -15,6 +15,7 @@ class UInputMappingContext;
 class UInputAction;
 class AItem;
 class UAnimMontage;
+class AWeapon;
 
 UCLASS()
 class SLASH_API ASlashCharacter : public ACharacter
@@ -28,7 +29,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	void PlayAttackMontage();
+	void PlayEquipMontage(FName SectionName);
 	bool CanAttack();
+	bool CanArm();
+	bool CanDisarm();
 protected:
 	/** Slash character input related, begin **/
 
@@ -71,12 +75,18 @@ private:
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
 
+	UPROPERTY(VisibleAnywhere, Category = Weapon)
+	AWeapon* EquippedWeapon;
+
 	ECharacterState CharacterState = ECharacterState::ECS_UnEquipped;
 
 	EActionState ActionState = EActionState::EAS_Unoccupied;
 
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* AttackMontage;	
+
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	UAnimMontage* EquipMontage;
 
 public:
 	FORCEINLINE AItem* GetOverlappingItem() const { return OverlappingItem; }
