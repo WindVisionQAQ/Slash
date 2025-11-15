@@ -57,7 +57,7 @@ void ASlashCharacter::BeginPlay()
 
 void ASlashCharacter::Move(const FInputActionValue& Value)
 {
-	if (ActionState == EActionState::EAS_Attacking) return;
+	if (ActionState != EActionState::EAS_Unoccupied) return;
 	const FVector2D MoveValue = Value.Get<FVector2D>();
 	const FRotator ControlRotation = GetControlRotation();
 	FRotator ControlRotation_YawOnly(0.f, ControlRotation.Yaw, 0.f);
@@ -82,7 +82,7 @@ void ASlashCharacter::EquipItem(const FInputActionValue& Value)
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
 	if (OverlappingWeapon)
 	{
-		OverlappingWeapon->Equip(GetMesh(), OverlappingWeapon->GetItemAttachSocketName());
+		OverlappingWeapon->Equip(GetMesh(), OverlappingWeapon->GetItemArmAttachSocketName());
 		OverlappingItem = nullptr;
 		EquippedWeapon = OverlappingWeapon;
 		CharacterState = OverlappingWeapon->GetItemCharacterStateOnEquipped();
@@ -93,12 +93,14 @@ void ASlashCharacter::EquipItem(const FInputActionValue& Value)
 		{
 			PlayEquipMontage(FName("Disarm"));
 			CharacterState = ECharacterState::ECS_UnEquipped;
+			ActionState = EActionState::EAS_Equipping;
 		}
 		else if (CanArm())
 		{
 			PlayEquipMontage(FName("Arm"));
 			check(EquippedWeapon);
 			CharacterState = EquippedWeapon->GetItemCharacterStateOnEquipped();
+			ActionState = EActionState::EAS_Equipping;
 		}
 	}
 
@@ -130,6 +132,24 @@ bool ASlashCharacter::CanDisarm()
 	return ActionState == EActionState::EAS_Unoccupied &&
 		CharacterState != ECharacterState::ECS_UnEquipped &&
 		EquippedWeapon;
+}
+
+void ASlashCharacter::Arm()
+{
+	if (!EquippedWeapon)
+	{
+		return;
+	}
+	EquippedWeapon->AttachMeshToSocket(GetMesh(), EquippedWeapon->GetItemArmAttachSocketName());
+}
+
+void ASlashCharacter::Disarm()
+{
+	if (!EquippedWeapon)
+	{
+		return;
+	}
+	EquippedWeapon->AttachMeshToSocket(GetMesh(), EquippedWeapon->GetItemDisarmAttachSocketName());
 }
 
 void ASlashCharacter::PlayAttackMontage()

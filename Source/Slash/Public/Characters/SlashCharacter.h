@@ -97,4 +97,8 @@ public:
 	FORCEINLINE void SetCharacterState(ECharacterState NewState) { CharacterState = NewState; }
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetActionState(EActionState NewState) { ActionState = NewState; }
+	UFUNCTION(BlueprintCallable)
+	void Arm();
+	UFUNCTION(BlueprintCallable)
+	void Disarm();
 };

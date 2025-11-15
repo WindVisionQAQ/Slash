@@ -37,7 +37,10 @@ protected:
 	ECharacterState CharacterStateOnEquipped = ECharacterState::ECS_EquippedOneHandedWeapon;
 
 	UPROPERTY(EditDefaultsOnly)
-	FName ItemAttachSocketName = TEXT("RightHandSocket");
+	FName ItemArmAttachSocketName = TEXT("RightHandSocket");
+
+	UPROPERTY(EditDefaultsOnly)
+	FName ItemDisarmAttachSocketName = TEXT("SpineSocket");
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* ItemMesh;
@@ -61,7 +64,8 @@ protected:
 
 public:
 	FORCEINLINE ECharacterState GetItemCharacterStateOnEquipped() const { return CharacterStateOnEquipped; }
-	FORCEINLINE FName GetItemAttachSocketName() const { return ItemAttachSocketName; }
+	FORCEINLINE FName GetItemArmAttachSocketName() const { return ItemArmAttachSocketName; }
+	FORCEINLINE FName GetItemDisarmAttachSocketName() const { return ItemDisarmAttachSocketName; }
 
 private:
 
