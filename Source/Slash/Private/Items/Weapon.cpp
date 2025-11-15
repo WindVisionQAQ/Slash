@@ -3,6 +3,8 @@
 
 #include "Items/Weapon.h"
 #include "Characters/SlashCharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/SphereComponent.h"
 
 void AWeapon::Equip(USceneComponent* AttachComponent, FName AttachSocketName)
 {
@@ -10,6 +12,8 @@ void AWeapon::Equip(USceneComponent* AttachComponent, FName AttachSocketName)
 	{
 		AttachMeshToSocket(AttachComponent, AttachSocketName);
 		ItemState = EItemState::EIS_Equipped;
+		SphereComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
 	}
 }
 
