@@ -8,6 +8,7 @@
 
 class USceneComponent;
 class USoundBase;
+class UBoxComponent;
 
 /**
  * 
@@ -16,10 +17,14 @@ UCLASS()
 class SLASH_API AWeapon : public AItem
 {
 	GENERATED_BODY()
-public:
-	UPROPERTY(EditAnywhere, Category = Sound)
+private:
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	USoundBase* EquipSound;
+
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	UBoxComponent* WeaponBox;
 public:
+	AWeapon();
 	void Equip(USceneComponent* AttachComponent, FName AttachSocketName);
 	void AttachMeshToSocket(USceneComponent* AttachComponent, FName AttachSocketName);
 protected:
