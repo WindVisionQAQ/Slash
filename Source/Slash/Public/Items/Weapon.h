@@ -23,11 +23,20 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	UBoxComponent* WeaponBox;
+
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Box Trace")
+	USceneComponent* BoxTraceStart;
+
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Box Trace")
+	USceneComponent* BoxTraceEnd;
 public:
 	AWeapon();
 	void Equip(USceneComponent* AttachComponent, FName AttachSocketName);
 	void AttachMeshToSocket(USceneComponent* AttachComponent, FName AttachSocketName);
 protected:
+	virtual void BeginPlay() override;
 	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
+	UFUNCTION()
+	void OnWeaponBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };
