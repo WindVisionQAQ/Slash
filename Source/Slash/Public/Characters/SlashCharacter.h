@@ -101,4 +101,6 @@ public:
 	void Arm();
 	UFUNCTION(BlueprintCallable)
 	void Disarm();
+	UFUNCTION(BlueprintCallable)
+	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
 };
