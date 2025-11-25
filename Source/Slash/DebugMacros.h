@@ -3,6 +3,7 @@
 #include "DrawDebugHelpers.h"
 
 #define DRAW_SPHERE(LOCATION) if (GetWorld()) DrawDebugSphere(GetWorld(), LOCATION, 100.f, 12, FColor::Purple, true);
+#define DRAW_SPHERE_COLOR(LOCATION, COLOR) if (GetWorld()) DrawDebugSphere(GetWorld(), LOCATION, 8.f, 12, COLOR, false);
 #define DRAW_SPHERE_SINGLEFRAME(LOCATION) if (GetWorld()) DrawDebugSphere(GetWorld(), LOCATION, 100.f, 12, FColor::Purple, false);
 #define DRAW_LINE(START_LOCATION, END_LOCATION) if (GetWorld()) DrawDebugLine(GetWorld(), START_LOCATION, END_LOCATION, FColor::Red, true);
 #define DRAW_LINE_SINGLEFRAME(START_LOCATION, END_LOCATION) if (GetWorld()) DrawDebugLine(GetWorld(), START_LOCATION, END_LOCATION, FColor::Red, false);
