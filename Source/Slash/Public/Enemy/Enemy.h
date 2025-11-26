@@ -29,6 +29,12 @@ private:
 	UAnimMontage* HitMontage;
 
 	/**
+	 * Sound Resources
+	 */
+	UPROPERTY(EditAnywhere, Category = Sound)
+	USoundBase* HitSound;
+
+	/**
 	 * Play Animation montage function
 	 */
 	void PlayHitMontage(FName SectionName);
