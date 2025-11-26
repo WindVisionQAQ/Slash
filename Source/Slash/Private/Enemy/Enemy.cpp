@@ -40,22 +40,8 @@ void AEnemy::PlayHitMontage(FName SectionName)
 	}
 }
 
-void AEnemy::Tick(float DeltaTime)
+void AEnemy::DirectionalHitReaction(const FVector& ImpactPoint)
 {
-	Super::Tick(DeltaTime);
-
-}
-
-void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
-
-void AEnemy::GetHit(const FVector& ImpactPoint)
-{
-	DRAW_SPHERE_COLOR(ImpactPoint, FColor::Orange);
-
 	const FVector ForwardVector = GetActorForwardVector();
 	const FVector ToHit = ImpactPoint - GetActorLocation();
 	const FVector ToHit_SameHeight = FVector(ToHit.X, ToHit.Y, ForwardVector.Z).GetSafeNormal();
@@ -87,5 +73,25 @@ void AEnemy::GetHit(const FVector& ImpactPoint)
 		SectionName = FName("FromLeft");
 	}
 	PlayHitMontage(SectionName);
+}
+
+void AEnemy::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
+void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+}
+
+void AEnemy::GetHit(const FVector& ImpactPoint)
+{
+	DRAW_SPHERE_COLOR(ImpactPoint, FColor::Orange);
+
+	DirectionalHitReaction(ImpactPoint);
+
 }
 

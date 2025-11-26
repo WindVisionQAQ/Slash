@@ -33,7 +33,10 @@ private:
 	 */
 	void PlayHitMontage(FName SectionName);
 
-public:	
+
+	void DirectionalHitReaction(const FVector& ImpactPoint);
+
+public:
 
 
 };

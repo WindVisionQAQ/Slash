@@ -21,6 +21,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	USoundBase* EquipSound;
 
+	/**
+	 * Box trace related
+	 */
+
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	UBoxComponent* WeaponBox;
 
@@ -29,11 +33,15 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Box Trace")
 	USceneComponent* BoxTraceEnd;
+
+	TArray<AActor*> ActorsToIgnoreDuringBoxTrace;
 public:
 	AWeapon();
 	void Equip(USceneComponent* AttachComponent, FName AttachSocketName);
 	void AttachMeshToSocket(USceneComponent* AttachComponent, FName AttachSocketName);
 	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox; }
+	FORCEINLINE TArray<AActor*> GetActorsToIgnoreDuringBoxTrace() const { return ActorsToIgnoreDuringBoxTrace; }
+	FORCEINLINE void ClearActorsToIgnore() { ActorsToIgnoreDuringBoxTrace.Reset(); }
 protected:
 	virtual void BeginPlay() override;
 	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
