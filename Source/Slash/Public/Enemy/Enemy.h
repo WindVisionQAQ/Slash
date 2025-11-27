@@ -35,6 +35,12 @@ private:
 	USoundBase* HitSound;
 
 	/**
+	 * Visual Effects
+	 */
+	UPROPERTY(EditAnywhere, Category = VisualEffects)
+	UParticleSystem* HitEffects;
+
+	/**
 	 * Play Animation montage function
 	 */
 	void PlayHitMontage(FName SectionName);

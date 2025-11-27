@@ -53,13 +53,6 @@ void AEnemy::DirectionalHitReaction(const FVector& ImpactPoint)
 	{
 		Theta *= -1;
 	}
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Cyan, FString::Printf(TEXT("Theta:%f"), Theta));
-	}
-	UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + ForwardVector * 60.f, 8.f, FColor::Red, 3.f);
-	UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + ToHit_SameHeight * 60.f, 8.f, FColor::Green, 3.f);
-	UKismetSystemLibrary::DrawDebugArrow(this, GetActorLocation(), GetActorLocation() + CrossProduct_ToHitForward * 60.f, 8.f, FColor::Blue, 3.f);
 	FName SectionName = FName("FromBack");
 	if (Theta > -45.f && Theta <= 45.f)
 	{
@@ -97,6 +90,11 @@ void AEnemy::GetHit(const FVector& ImpactPoint)
 	if (HitSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, HitSound, ImpactPoint);
+	}
+
+	if (HitEffects && GetWorld())
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffects, ImpactPoint);
 	}
 }
 
