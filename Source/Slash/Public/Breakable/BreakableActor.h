@@ -9,6 +9,8 @@
 
 class USoundBase;
 class UGeometryCollectionComponent;
+class UCapsuleComponent;
+class ATreasure;
 
 UCLASS()
 class SLASH_API ABreakableActor : public AActor, public IHitInterface
@@ -26,7 +28,15 @@ protected:
 private:	
 	UPROPERTY(VisibleAnywhere, Category = GeometryCollection)
 	UGeometryCollectionComponent* GeometryCollection;
-private:
+
+	UPROPERTY(VisibleAnywhere)
+	UCapsuleComponent* PawnBlockCapsule;
+
 	UPROPERTY(EditAnywhere, Category = SoundEffects)
 	USoundBase* BreakSoundEffects;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Breakable Properties")
+	TSubclassOf<ATreasure> SpawnedTreasureClass;
+
+	bool bIsBroken = false;
 };
