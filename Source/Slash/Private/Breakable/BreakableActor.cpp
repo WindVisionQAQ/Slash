@@ -3,6 +3,8 @@
 
 #include "Breakable/BreakableActor.h"
 #include "GeometryCollection/GeometryCollectionComponent.h"
+#include "Sound/SoundBase.h"
+#include "Kismet/GameplayStatics.h"
 
 ABreakableActor::ABreakableActor()
 {
@@ -13,6 +15,7 @@ ABreakableActor::ABreakableActor()
 	{
 		GeometryCollection->SetGenerateOverlapEvents(true);
 		GeometryCollection->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
+		GeometryCollection->SetNotifyBreaks(true);
 	}
 }
 
@@ -20,6 +23,15 @@ void ABreakableActor::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (GeometryCollection)
+	{
+		GeometryCollection->OnChaosBreakEvent.AddDynamic(this, &ABreakableActor::OnBreak);
+	}
+}
+
+void ABreakableActor::OnBreak(const FChaosBreakEvent& BreakEvent)
+{
+	SetLifeSpan(3.0f);
 }
 
 void ABreakableActor::Tick(float DeltaTime)
@@ -28,9 +40,13 @@ void ABreakableActor::Tick(float DeltaTime)
 
 }
 
-void ABreakableActor::GetHit(const FVector& ImpactPoint)
+void ABreakableActor::GetHit_Implementation(const FVector& ImpactPoint)
 {
-
+	if (BreakSoundEffects)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, BreakSoundEffects, ImpactPoint);
+		GeometryCollection->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	}
 }
 
 

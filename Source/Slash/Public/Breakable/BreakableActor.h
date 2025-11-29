@@ -7,6 +7,7 @@
 #include "Interface/HitInterface.h"
 #include "BreakableActor.generated.h"
 
+class USoundBase;
 class UGeometryCollectionComponent;
 
 UCLASS()
@@ -17,11 +18,15 @@ class SLASH_API ABreakableActor : public AActor, public IHitInterface
 public:	
 	ABreakableActor();
 	virtual void Tick(float DeltaTime) override;
-	virtual void GetHit(const FVector& ImpactPoint) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 protected:
 	virtual void BeginPlay() override;
+	UFUNCTION()
+	void OnBreak(const FChaosBreakEvent& BreakEvent);
 private:	
 	UPROPERTY(VisibleAnywhere, Category = GeometryCollection)
 	UGeometryCollectionComponent* GeometryCollection;
-
+private:
+	UPROPERTY(EditAnywhere, Category = SoundEffects)
+	USoundBase* BreakSoundEffects;
 };
