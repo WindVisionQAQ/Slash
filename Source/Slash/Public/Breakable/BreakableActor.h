@@ -36,7 +36,7 @@ private:
 	USoundBase* BreakSoundEffects;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Breakable Properties")
-	TSubclassOf<ATreasure> SpawnedTreasureClass;
+	TArray<TSubclassOf<ATreasure>> SpawnedTreasureClasses;
 
 	bool bIsBroken = false;
 };

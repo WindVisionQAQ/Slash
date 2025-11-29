@@ -49,11 +49,12 @@ void ABreakableActor::OnBreak(const FChaosBreakEvent& BreakEvent)
 		PawnBlockCapsule->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	}
 	UWorld* World = GetWorld();
-	if (World && SpawnedTreasureClass)
+	if (World && SpawnedTreasureClasses.Num())
 	{
 		FVector Location = GetActorLocation();
 		Location.Z += 75.f;
-		World->SpawnActor<ATreasure>(SpawnedTreasureClass, Location, GetActorRotation());
+		int32 Selection = FMath::RandRange(0, SpawnedTreasureClasses.Num() - 1);
+		World->SpawnActor<ATreasure>(SpawnedTreasureClasses[Selection], Location, GetActorRotation());
 	}
 	SetLifeSpan(3.0f);
 }

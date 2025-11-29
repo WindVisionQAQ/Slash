@@ -23,4 +23,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = Sounds)
 	USoundBase* CoinSound;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Treasure Properties")
+	int32 Gold;
 };
