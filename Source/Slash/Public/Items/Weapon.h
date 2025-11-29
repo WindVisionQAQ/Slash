@@ -17,6 +17,21 @@ UCLASS()
 class SLASH_API AWeapon : public AItem
 {
 	GENERATED_BODY()
+public:
+	AWeapon();
+	void Equip(USceneComponent* AttachComponent, FName AttachSocketName);
+	void AttachMeshToSocket(USceneComponent* AttachComponent, FName AttachSocketName);
+	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox; }
+	FORCEINLINE TArray<AActor*> GetActorsToIgnoreDuringBoxTrace() const { return ActorsToIgnoreDuringBoxTrace; }
+	FORCEINLINE void ClearActorsToIgnore() { ActorsToIgnoreDuringBoxTrace.Reset(); }
+protected:
+	virtual void BeginPlay() override;
+	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
+	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
+	UFUNCTION()
+	void OnWeaponBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION(BlueprintImplementableEvent)
+	void CreateField(const FVector& Position);
 private:
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	USoundBase* EquipSound;
@@ -35,17 +50,4 @@ private:
 	USceneComponent* BoxTraceEnd;
 
 	TArray<AActor*> ActorsToIgnoreDuringBoxTrace;
-public:
-	AWeapon();
-	void Equip(USceneComponent* AttachComponent, FName AttachSocketName);
-	void AttachMeshToSocket(USceneComponent* AttachComponent, FName AttachSocketName);
-	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox; }
-	FORCEINLINE TArray<AActor*> GetActorsToIgnoreDuringBoxTrace() const { return ActorsToIgnoreDuringBoxTrace; }
-	FORCEINLINE void ClearActorsToIgnore() { ActorsToIgnoreDuringBoxTrace.Reset(); }
-protected:
-	virtual void BeginPlay() override;
-	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
-	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
-	UFUNCTION()
-	void OnWeaponBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };
