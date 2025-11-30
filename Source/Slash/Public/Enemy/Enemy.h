@@ -9,6 +9,7 @@
 
 class UAnimMontage;
 class UAttributeComponent;
+class UHealthBarWidgetComponent;
 
 UCLASS()
 class SLASH_API AEnemy : public ACharacter, public IHitInterface
@@ -50,6 +51,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Attributes")
 	UAttributeComponent* AttributeComp;
+
+	UPROPERTY(VisibleAnywhere, Category = "Health")
+	UHealthBarWidgetComponent* HealthBarWidgetComponent;
 
 public:
 

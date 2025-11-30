@@ -9,6 +9,7 @@
 #include "Animation/AnimMontage.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/AttributeComponent.h"
+#include "HUD/HealthBarWidgetComponent.h"
 
 AEnemy::AEnemy()
 {
@@ -25,12 +26,17 @@ AEnemy::AEnemy()
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	}
 	AttributeComp = CreateDefaultSubobject<UAttributeComponent>(TEXT("AttributeComponent"));
+	HealthBarWidgetComponent = CreateDefaultSubobject<UHealthBarWidgetComponent>(TEXT("HealthBarComp"));
+	HealthBarWidgetComponent->SetupAttachment(GetRootComponent());
 }
 
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	if (HealthBarWidgetComponent)
+	{
+		HealthBarWidgetComponent->SetHealthPercentage(1.f);
+	}
 }
 
 void AEnemy::PlayHitMontage(FName SectionName)
