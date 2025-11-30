@@ -32,11 +32,13 @@ void AWeapon::BeginPlay()
 	}
 }
 
-void AWeapon::Equip(USceneComponent* AttachComponent, FName AttachSocketName)
+void AWeapon::Equip(USceneComponent* AttachComponent, FName AttachSocketName, AActor* InOwner, APawn* InInstigator)
 {
 	if (ItemMesh && AttachComponent)
 	{
 		AttachMeshToSocket(AttachComponent, AttachSocketName);
+		SetOwner(InOwner);
+		SetInstigator(InInstigator);
 		ItemState = EItemState::EIS_Equipped;
 		SphereComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
@@ -95,5 +97,9 @@ void AWeapon::OnWeaponBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 		}
 		ActorsToIgnoreDuringBoxTrace.AddUnique(BoxHitResult.GetActor());
 		CreateField(BoxHitResult.ImpactPoint);
+		if (GetInstigator())
+		{
+			UGameplayStatics::ApplyDamage(BoxHitResult.GetActor(), Damage, GetInstigator()->GetController(), this, UDamageType::StaticClass());
+		}
 	}
 }

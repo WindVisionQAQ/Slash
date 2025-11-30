@@ -89,6 +89,19 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+float AEnemy::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	if (AttributeComp)
+	{
+		AttributeComp->ReceiveDamage(Damage);
+		if (HealthBarWidgetComponent)
+		{
+			HealthBarWidgetComponent->SetHealthPercentage(AttributeComp->GetHealthPercentage());
+		}
+	}
+	return Damage;
+}
+
 void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
 {
 	DRAW_SPHERE_COLOR(ImpactPoint, FColor::Orange);

@@ -83,7 +83,7 @@ void ASlashCharacter::EquipItem(const FInputActionValue& Value)
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
 	if (OverlappingWeapon)
 	{
-		OverlappingWeapon->Equip(GetMesh(), OverlappingWeapon->GetItemArmAttachSocketName());
+		OverlappingWeapon->Equip(GetMesh(), OverlappingWeapon->GetItemArmAttachSocketName(), this, this);
 		OverlappingItem = nullptr;
 		EquippedWeapon = OverlappingWeapon;
 		CharacterState = OverlappingWeapon->GetItemCharacterStateOnEquipped();

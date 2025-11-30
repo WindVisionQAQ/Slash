@@ -19,7 +19,7 @@ class SLASH_API AWeapon : public AItem
 	GENERATED_BODY()
 public:
 	AWeapon();
-	void Equip(USceneComponent* AttachComponent, FName AttachSocketName);
+	void Equip(USceneComponent* AttachComponent, FName AttachSocketName, AActor* Owner, APawn* Instigator);
 	void AttachMeshToSocket(USceneComponent* AttachComponent, FName AttachSocketName);
 	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox; }
 	FORCEINLINE TArray<AActor*> GetActorsToIgnoreDuringBoxTrace() const { return ActorsToIgnoreDuringBoxTrace; }
@@ -35,6 +35,9 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	USoundBase* EquipSound;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	float Damage;
 
 	/**
 	 * Box trace related
