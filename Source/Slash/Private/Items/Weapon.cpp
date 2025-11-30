@@ -8,6 +8,7 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Interface/HitInterface.h"
+#include "NiagaraComponent.h"
 
 AWeapon::AWeapon()
 {
@@ -39,6 +40,10 @@ void AWeapon::Equip(USceneComponent* AttachComponent, FName AttachSocketName)
 		ItemState = EItemState::EIS_Equipped;
 		SphereComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
+		if (EmberComponent)
+		{
+			EmberComponent->Deactivate();
+		}
 	}
 }
 

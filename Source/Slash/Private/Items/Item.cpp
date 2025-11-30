@@ -6,6 +6,7 @@
 #include "Components/StaticMeshComponent.h"	
 #include "Components/SphereComponent.h"
 #include "Characters/SlashCharacter.h"
+#include "NiagaraComponent.h"
 
 AItem::AItem()
 {
@@ -16,6 +17,9 @@ AItem::AItem()
 
 	SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
 	SphereComp->SetupAttachment(GetRootComponent());
+
+	EmberComponent = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Ember"));
+	EmberComponent->SetupAttachment(GetRootComponent());
 }
 
 void AItem::BeginPlay()

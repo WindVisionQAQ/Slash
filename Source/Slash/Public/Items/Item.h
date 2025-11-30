@@ -9,6 +9,7 @@
 
 class UStaticMeshComponent;
 class USphereComponent;
+class UNiagaraComponent;
 
 enum class EItemState : uint8
 {
@@ -27,6 +28,27 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintPure)
+	float TransformedSin();
+
+	UFUNCTION(BlueprintPure)
+	float TransformedCos();
+
+	template <typename T>
+	T Avg(T First, T Second);
+
+	UFUNCTION()
+	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+public:
+	FORCEINLINE ECharacterState GetItemCharacterStateOnEquipped() const { return CharacterStateOnEquipped; }
+	FORCEINLINE FName GetItemArmAttachSocketName() const { return ItemArmAttachSocketName; }
+	FORCEINLINE FName GetItemDisarmAttachSocketName() const { return ItemDisarmAttachSocketName; }
+
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sine Parameters")
 	float Amplitude = 0.25f;
 
@@ -50,31 +72,13 @@ protected:
 
 	EItemState ItemState = EItemState::EIS_Hovering;
 
-	UFUNCTION(BlueprintPure)
-	float TransformedSin();
-
-	UFUNCTION(BlueprintPure)
-	float TransformedCos();
-
-	template <typename T>
-	T Avg(T First, T Second);
-
-	UFUNCTION()
-	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-public:
-	FORCEINLINE ECharacterState GetItemCharacterStateOnEquipped() const { return CharacterStateOnEquipped; }
-	FORCEINLINE FName GetItemArmAttachSocketName() const { return ItemArmAttachSocketName; }
-	FORCEINLINE FName GetItemDisarmAttachSocketName() const { return ItemDisarmAttachSocketName; }
+	UPROPERTY(VisibleAnywhere, Category = "Visual Effects")
+	UNiagaraComponent* EmberComponent;
 
 private:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float RunningTime;
-
 };
 
 template <typename T>
