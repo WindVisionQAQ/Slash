@@ -39,6 +39,17 @@ void AEnemy::BeginPlay()
 	}
 }
 
+void AEnemy::Die()
+{
+	if (DeathMontage)
+	{
+		const int32 DeathMontageSectionNum = DeathMontage->GetNumSections();
+		const int32 Selection = FMath::RandRange(1, DeathMontageSectionNum);
+		FName SectionName = FName(*FString::Printf(TEXT("Death%d"), Selection));
+		PlayDeathMontage(SectionName);
+	}
+}
+
 void AEnemy::PlayHitMontage(FName SectionName)
 {
 	UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
@@ -46,6 +57,16 @@ void AEnemy::PlayHitMontage(FName SectionName)
 	{
 		AnimInstance->Montage_Play(HitMontage);
 		AnimInstance->Montage_JumpToSection(SectionName, HitMontage);
+	}
+}
+
+void AEnemy::PlayDeathMontage(FName SectionName)
+{
+	UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
+	if (AnimInstance)
+	{
+		AnimInstance->Montage_Play(DeathMontage);
+		AnimInstance->Montage_JumpToSection(SectionName, DeathMontage);
 	}
 }
 
@@ -106,8 +127,15 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
 {
 	DRAW_SPHERE_COLOR(ImpactPoint, FColor::Orange);
 
-	DirectionalHitReaction(ImpactPoint);
-
+	if (AttributeComp && AttributeComp->IsAlive())
+	{
+		DirectionalHitReaction(ImpactPoint);
+	}
+	else
+	{
+		Die();
+	}
+	
 	if (HitSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, HitSound, ImpactPoint);

@@ -24,11 +24,13 @@ public:
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 protected:
 	virtual void BeginPlay() override;
+	void Die();
 private:
 	/**
 	* Play Animation montage function
 	*/
 	void PlayHitMontage(FName SectionName);
+	void PlayDeathMontage(FName SectionName);
 
 	void DirectionalHitReaction(const FVector& ImpactPoint);
 private:
@@ -37,6 +39,9 @@ private:
 	 */
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* HitMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	UAnimMontage* DeathMontage;
 
 	/**
 	 * Sound Resources
