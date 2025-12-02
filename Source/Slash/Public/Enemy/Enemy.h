@@ -33,6 +33,13 @@ private:
 	void PlayDeathMontage(FName SectionName);
 
 	void DirectionalHitReaction(const FVector& ImpactPoint);
+
+protected:
+	UPROPERTY(BlueprintReadOnly)
+	AActor* CombatTarget;
+
+	UPROPERTY(EditAnywhere, Category = "Enemy Properties")
+	float AlertDistance = 500.f;
 private:
 	/**
 	 * Animation Montages
