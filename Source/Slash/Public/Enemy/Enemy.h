@@ -10,6 +10,7 @@
 class UAnimMontage;
 class UAttributeComponent;
 class UHealthBarWidgetComponent;
+class AAIController;
 
 UCLASS()
 class SLASH_API AEnemy : public ACharacter, public IHitInterface
@@ -33,7 +34,11 @@ private:
 	void PlayDeathMontage(FName SectionName);
 
 	void DirectionalHitReaction(const FVector& ImpactPoint);
-
+	void MoveToActor(AActor* TargetActor);
+	bool IsNearTargetActor(AActor* TargetActor, float DistanceThreshold);
+	void CheckCombatTarget();
+	void CheckPatrolTarget();
+	void RefreshPatrolPoint();
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	AActor* CombatTarget;
@@ -67,6 +72,25 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Health")
 	UHealthBarWidgetComponent* HealthBarWidgetComponent;
+
+	UPROPERTY(EditInstanceOnly, Category = "AI Navigation")
+	TArray<AActor*> PatrolPoints;
+
+	UPROPERTY()
+	AActor* CurrentPatrolPoint;
+
+	// If the distance between enemy and current patrol point is less or equal than this value, refresh and pick a new patrol point.
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
+	float PatrolRefreshDistance = 200.f;
+
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
+	float PatrolSpeed = 75.f;
+
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
+	float ChaseSpeed = 300.f;
+
+	UPROPERTY()
+	AAIController* EnemyController = nullptr;
 
 public:
 
