@@ -5,12 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interface/HitInterface.h"
+#include "Characters/SlashCharacterTypes.h"
 #include "Enemy.generated.h"
 
 class UAnimMontage;
 class UAttributeComponent;
 class UHealthBarWidgetComponent;
 class AAIController;
+class UPawnSensingComponent;
 
 UCLASS()
 class SLASH_API AEnemy : public ACharacter, public IHitInterface
@@ -26,6 +28,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	void Die();
+	UFUNCTION()
+	void HandlePawnSeen(APawn* SeenPawn);
 private:
 	/**
 	* Play Animation montage function
@@ -39,12 +43,16 @@ private:
 	void CheckCombatTarget();
 	void CheckPatrolTarget();
 	void RefreshPatrolPoint();
+	void MoveToNewPatrolPoint();
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	AActor* CombatTarget;
 
 	UPROPERTY(EditAnywhere, Category = "Enemy Properties")
-	float AlertDistance = 500.f;
+	float AlertDistance = 1000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Enemy Properties")
+	float AttackRadius = 300.f;
 private:
 	/**
 	 * Animation Montages
@@ -81,7 +89,7 @@ private:
 
 	// If the distance between enemy and current patrol point is less or equal than this value, refresh and pick a new patrol point.
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
-	float PatrolRefreshDistance = 200.f;
+	float PatrolRefreshDistance = 300.f;
 
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
 	float PatrolSpeed = 75.f;
@@ -89,8 +97,15 @@ private:
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
 	float ChaseSpeed = 300.f;
 
+	UPROPERTY(VisibleAnywhere, Category = "AI Navigation")
+	UPawnSensingComponent* PawnSensingComp;
+
 	UPROPERTY()
 	AAIController* EnemyController = nullptr;
+
+	FTimerHandle PatrolTimerHandle;
+
+	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 
 public:
 

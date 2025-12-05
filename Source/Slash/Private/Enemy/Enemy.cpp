@@ -13,6 +13,7 @@
 #include "AIController.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Perception/PawnSensingComponent.h"
 
 AEnemy::AEnemy()
 {
@@ -36,6 +37,10 @@ AEnemy::AEnemy()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
+
+	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensing"));
+	PawnSensingComp->SetPeripheralVisionAngle(45.f);
+	PawnSensingComp->SightRadius = 2000.f;
 }
 
 void AEnemy::BeginPlay()
@@ -46,12 +51,16 @@ void AEnemy::BeginPlay()
 		HealthBarWidgetComponent->SetHealthPercentage(1.f);
 		HealthBarWidgetComponent->SetVisibility(false);
 	}
-	GetCharacterMovement()->MaxWalkSpeed = 75.f;
+	GetCharacterMovement()->MaxWalkSpeed = 150.f;
 	EnemyController = Cast<AAIController>(GetController());
 	if (!CurrentPatrolPoint) RefreshPatrolPoint();
 	if (EnemyController && CurrentPatrolPoint)
 	{
 		MoveToActor(CurrentPatrolPoint);
+	}
+	if (PawnSensingComp)
+	{
+		PawnSensingComp->OnSeePawn.AddDynamic(this, &AEnemy::HandlePawnSeen);
 	}
 }
 
@@ -76,7 +85,20 @@ void AEnemy::Die()
 	{
 		HealthBarWidgetComponent->SetVisibility(false);
 	}
+	CombatTarget = nullptr;
+	CurrentPatrolPoint = nullptr;
+	EnemyState = EEnemyState::
 	SetLifeSpan(5.f);
+}
+
+void AEnemy::HandlePawnSeen(APawn* SeenPawn)
+{
+	if (SeenPawn && SeenPawn->ActorHasTag("CanSeenByEnemy") && !CombatTarget)
+	{
+		CombatTarget = SeenPawn;
+		EnemyState = EEnemyState::EES_Chasing;
+		GetWorldTimerManager().ClearTimer(PatrolTimerHandle);
+	}
 }
 
 void AEnemy::PlayHitMontage(FName SectionName)
@@ -145,12 +167,29 @@ bool AEnemy::IsNearTargetActor(AActor* TargetActor, float DistanceThreshold)
 void AEnemy::CheckCombatTarget()
 {
 	if (!CombatTarget) return;
-	if (!IsNearTargetActor(CombatTarget, AlertDistance))
+	if (!IsNearTargetActor(CombatTarget, AlertDistance) && EnemyState != EEnemyState::EES_Patrolling)
 	{
 		if (HealthBarWidgetComponent)
 		{
 			HealthBarWidgetComponent->SetVisibility(false);
 		}
+		EnemyState = EEnemyState::EES_Patrolling;
+		CombatTarget = nullptr;
+		MoveToActor(CurrentPatrolPoint);
+		GetCharacterMovement()->MaxWalkSpeed = 150.f;
+		UE_LOG(LogTemp, Warning, TEXT("Out of AlertDistance."));
+	}
+	else if (!IsNearTargetActor(CombatTarget, AttackRadius) && EnemyState != EEnemyState::EES_Chasing)
+	{
+		EnemyState = EEnemyState::EES_Chasing;
+		GetCharacterMovement()->MaxWalkSpeed = 300.f;
+		MoveToActor(CombatTarget);
+		UE_LOG(LogTemp, Warning, TEXT("Chasing Target"));
+	}
+	else if (IsNearTargetActor(CombatTarget, AttackRadius) && EnemyState != EEnemyState::EES_Attacking)
+	{
+		EnemyState = EEnemyState::EES_Attacking;
+		UE_LOG(LogTemp, Warning, TEXT("Attacking"));
 	}
 }
 
@@ -159,7 +198,7 @@ void AEnemy::CheckPatrolTarget()
 	if (IsNearTargetActor(CurrentPatrolPoint, PatrolRefreshDistance))
 	{
 		RefreshPatrolPoint();
-		MoveToActor(CurrentPatrolPoint);
+		GetWorldTimerManager().SetTimer(PatrolTimerHandle, this, &AEnemy::MoveToNewPatrolPoint, 5.f, false);
 	}
 }
 
@@ -181,11 +220,23 @@ void AEnemy::RefreshPatrolPoint()
 }
 
 
+void AEnemy::MoveToNewPatrolPoint()
+{
+	MoveToActor(CurrentPatrolPoint);
+}
+
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	CheckCombatTarget();
-	CheckPatrolTarget();
+	if (EnemyState > EEnemyState::EES_Patrolling && CombatTarget)
+	{
+		CheckCombatTarget();
+	}
+	else if (EnemyState > EEnemyState::EES_Dead)
+	{
+		CheckPatrolTarget();
+	}
+	
 }
 
 void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -207,6 +258,8 @@ float AEnemy::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, A
 		if (EventInstigator)
 		{
 			CombatTarget = EventInstigator->GetPawn();
+			EnemyState = EEnemyState::EES_Chasing;
+			GetWorldTimerManager().ClearTimer(PatrolTimerHandle);
 		}
 	}
 	return Damage;

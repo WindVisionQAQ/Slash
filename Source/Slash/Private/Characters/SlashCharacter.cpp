@@ -41,6 +41,7 @@ ASlashCharacter::ASlashCharacter()
 	EyebrowComp = CreateDefaultSubobject<UGroomComponent>(TEXT("Eyebrow"));
 	EyebrowComp->SetupAttachment(GetMesh());
 	EyebrowComp->AttachmentName = TEXT("head");
+	Tags.Add("CanSeenByEnemy");
 }
 
 void ASlashCharacter::BeginPlay()
