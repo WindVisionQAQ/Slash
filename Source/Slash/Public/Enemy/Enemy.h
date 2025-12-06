@@ -3,8 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
-#include "Interface/HitInterface.h"
+#include "Characters/BaseCharacter.h"
 #include "Characters/SlashCharacterTypes.h"
 #include "Enemy.generated.h"
 
@@ -15,7 +14,7 @@ class AAIController;
 class UPawnSensingComponent;
 
 UCLASS()
-class SLASH_API AEnemy : public ACharacter, public IHitInterface
+class SLASH_API AEnemy : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -27,17 +26,10 @@ public:
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 protected:
 	virtual void BeginPlay() override;
-	void Die();
+	virtual void Die() override;
 	UFUNCTION()
 	void HandlePawnSeen(APawn* SeenPawn);
 private:
-	/**
-	* Play Animation montage function
-	*/
-	void PlayHitMontage(FName SectionName);
-	void PlayDeathMontage(FName SectionName);
-
-	void DirectionalHitReaction(const FVector& ImpactPoint);
 	void MoveToActor(AActor* TargetActor);
 	bool IsNearTargetActor(AActor* TargetActor, float DistanceThreshold);
 	void CheckCombatTarget();
@@ -45,8 +37,6 @@ private:
 	void RefreshPatrolPoint();
 	void MoveToNewPatrolPoint();
 protected:
-	UPROPERTY(BlueprintReadOnly)
-	AActor* CombatTarget;
 
 	UPROPERTY(EditAnywhere, Category = "Enemy Properties")
 	float AlertDistance = 1000.f;
@@ -54,29 +44,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Enemy Properties")
 	float AttackRadius = 300.f;
 private:
-	/**
-	 * Animation Montages
-	 */
-	UPROPERTY(EditDefaultsOnly, Category = Montages)
-	UAnimMontage* HitMontage;
-
-	UPROPERTY(EditDefaultsOnly, Category = Montages)
-	UAnimMontage* DeathMontage;
-
-	/**
-	 * Sound Resources
-	 */
-	UPROPERTY(EditAnywhere, Category = Sound)
-	USoundBase* HitSound;
-
-	/**
-	 * Visual Effects
-	 */
-	UPROPERTY(EditAnywhere, Category = VisualEffects)
-	UParticleSystem* HitEffects;
-
-	UPROPERTY(VisibleAnywhere, Category = "Attributes")
-	UAttributeComponent* AttributeComp;
 
 	UPROPERTY(VisibleAnywhere, Category = "Health")
 	UHealthBarWidgetComponent* HealthBarWidgetComponent;

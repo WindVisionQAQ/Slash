@@ -29,7 +29,6 @@ AEnemy::AEnemy()
 	{
 		GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	}
-	AttributeComp = CreateDefaultSubobject<UAttributeComponent>(TEXT("AttributeComponent"));
 	HealthBarWidgetComponent = CreateDefaultSubobject<UHealthBarWidgetComponent>(TEXT("HealthBarComp"));
 	HealthBarWidgetComponent->SetupAttachment(GetRootComponent());
 
@@ -87,7 +86,7 @@ void AEnemy::Die()
 	}
 	CombatTarget = nullptr;
 	CurrentPatrolPoint = nullptr;
-	EnemyState = EEnemyState::
+	EnemyState = EEnemyState::EES_Dead;
 	SetLifeSpan(5.f);
 }
 
@@ -99,54 +98,6 @@ void AEnemy::HandlePawnSeen(APawn* SeenPawn)
 		EnemyState = EEnemyState::EES_Chasing;
 		GetWorldTimerManager().ClearTimer(PatrolTimerHandle);
 	}
-}
-
-void AEnemy::PlayHitMontage(FName SectionName)
-{
-	UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
-	if (AnimInstance)
-	{
-		AnimInstance->Montage_Play(HitMontage);
-		AnimInstance->Montage_JumpToSection(SectionName, HitMontage);
-	}
-}
-
-void AEnemy::PlayDeathMontage(FName SectionName)
-{
-	UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
-	if (AnimInstance)
-	{
-		AnimInstance->Montage_Play(DeathMontage);
-		AnimInstance->Montage_JumpToSection(SectionName, DeathMontage);
-	}
-}
-
-void AEnemy::DirectionalHitReaction(const FVector& ImpactPoint)
-{
-	const FVector ForwardVector = GetActorForwardVector();
-	const FVector ToHit = ImpactPoint - GetActorLocation();
-	const FVector ToHit_SameHeight = FVector(ToHit.X, ToHit.Y, ForwardVector.Z).GetSafeNormal();
-	const double DotProduct_ToHitForward = FVector::DotProduct(ForwardVector, ToHit_SameHeight);
-	const FVector CrossProduct_ToHitForward = FVector::CrossProduct(ToHit_SameHeight, ForwardVector);
-	double Theta = FMath::RadiansToDegrees(FMath::Acos(DotProduct_ToHitForward));
-	if (CrossProduct_ToHitForward.Z < 0)
-	{
-		Theta *= -1;
-	}
-	FName SectionName = FName("FromBack");
-	if (Theta > -45.f && Theta <= 45.f)
-	{
-		SectionName = FName("FromFront");
-	}
-	else if (Theta > -135.f && Theta <= -45.f)
-	{
-		SectionName = FName("FromRight");
-	}
-	else if (Theta > 45.f && Theta <= 135.f)
-	{
-		SectionName = FName("FromLeft");
-	}
-	PlayHitMontage(SectionName);
 }
 
 void AEnemy::MoveToActor(AActor* TargetActor)

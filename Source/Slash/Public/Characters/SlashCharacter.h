@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
+#include "Characters/BaseCharacter.h"
 #include "InputActionValue.h"
 #include "SlashCharacterTypes.h"
 #include "SlashCharacter.generated.h"
@@ -18,7 +18,7 @@ class UAnimMontage;
 class AWeapon;
 
 UCLASS()
-class SLASH_API ASlashCharacter : public ACharacter
+class SLASH_API ASlashCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -28,11 +28,11 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 protected:
 	virtual void BeginPlay() override;
-	void PlayAttackMontage();
 	void PlayEquipMontage(FName SectionName);
-	bool CanAttack();
+	virtual bool CanAttack() override;
 	bool CanArm();
 	bool CanDisarm();
+	virtual void PlayAttackMontage() override;
 protected:
 	/** Slash character input related, begin **/
 
@@ -75,15 +75,9 @@ private:
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
 
-	UPROPERTY(VisibleAnywhere, Category = Weapon)
-	AWeapon* EquippedWeapon;
-
 	ECharacterState CharacterState = ECharacterState::ECS_UnEquipped;
 
 	EActionState ActionState = EActionState::EAS_Unoccupied;
-
-	UPROPERTY(EditDefaultsOnly, Category = Montages)
-	UAnimMontage* AttackMontage;	
 
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* EquipMontage;
@@ -101,6 +95,4 @@ public:
 	void Arm();
 	UFUNCTION(BlueprintCallable)
 	void Disarm();
-	UFUNCTION(BlueprintCallable)
-	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
 };

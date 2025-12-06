@@ -154,15 +154,6 @@ void ASlashCharacter::Disarm()
 	EquippedWeapon->AttachMeshToSocket(GetMesh(), EquippedWeapon->GetItemDisarmAttachSocketName());
 }
 
-void ASlashCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled)
-{
-	if (EquippedWeapon && EquippedWeapon->GetWeaponBox())
-	{
-		EquippedWeapon->GetWeaponBox()->SetCollisionEnabled(CollisionEnabled);
-		EquippedWeapon->ClearActorsToIgnore();
-	}
-}
-
 void ASlashCharacter::PlayAttackMontage()
 {
 	if (!GetMesh()) return;
