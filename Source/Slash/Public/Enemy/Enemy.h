@@ -12,6 +12,7 @@ class UAttributeComponent;
 class UHealthBarWidgetComponent;
 class AAIController;
 class UPawnSensingComponent;
+class AWeapon;
 
 UCLASS()
 class SLASH_API AEnemy : public ABaseCharacter
@@ -29,6 +30,9 @@ protected:
 	virtual void Die() override;
 	UFUNCTION()
 	void HandlePawnSeen(APawn* SeenPawn);
+	void Attack();
+	virtual void PlayAttackMontage() override;
+	virtual void Destroyed() override;
 private:
 	void MoveToActor(AActor* TargetActor);
 	bool IsNearTargetActor(AActor* TargetActor, float DistanceThreshold);
@@ -43,6 +47,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Enemy Properties")
 	float AttackRadius = 300.f;
+
+	UPROPERTY(BlueprintReadOnly)
+	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Health")
@@ -67,12 +74,13 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "AI Navigation")
 	UPawnSensingComponent* PawnSensingComp;
 
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	TSubclassOf<AWeapon> WeaponClass;
+
 	UPROPERTY()
 	AAIController* EnemyController = nullptr;
 
 	FTimerHandle PatrolTimerHandle;
-
-	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 
 public:
 

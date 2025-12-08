@@ -32,7 +32,7 @@ void AWeapon::BeginPlay()
 	}
 }
 
-void AWeapon::Equip(USceneComponent* AttachComponent, FName AttachSocketName, AActor* InOwner, APawn* InInstigator)
+void AWeapon::Equip(USceneComponent* AttachComponent, FName AttachSocketName, AActor* InOwner, APawn* InInstigator, bool bPlaySound)
 {
 	if (ItemMesh && AttachComponent)
 	{
@@ -41,7 +41,10 @@ void AWeapon::Equip(USceneComponent* AttachComponent, FName AttachSocketName, AA
 		SetInstigator(InInstigator);
 		ItemState = EItemState::EIS_Equipped;
 		SphereComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
+		if (bPlaySound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, EquipSound, GetActorLocation());
+		}
 		if (EmberComponent)
 		{
 			EmberComponent->Deactivate();

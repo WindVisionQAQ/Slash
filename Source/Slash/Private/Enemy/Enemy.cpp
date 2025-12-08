@@ -14,6 +14,7 @@
 #include "Navigation/PathFollowingComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/PawnSensingComponent.h"
+#include "Items/Weapon.h"
 
 AEnemy::AEnemy()
 {
@@ -61,10 +62,22 @@ void AEnemy::BeginPlay()
 	{
 		PawnSensingComp->OnSeePawn.AddDynamic(this, &AEnemy::HandlePawnSeen);
 	}
+	if (WeaponClass)
+	{
+		EquippedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass);
+		if (EquippedWeapon)
+		{
+			EquippedWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this, false);
+		}
+		
+	}
 }
 
 void AEnemy::Die()
 {
+	CombatTarget = nullptr;
+	CurrentPatrolPoint = nullptr;
+	EnemyState = EEnemyState::EES_Dead;
 	if (DeathMontage)
 	{
 		const int32 DeathMontageSectionNum = DeathMontage->GetNumSections();
@@ -84,19 +97,53 @@ void AEnemy::Die()
 	{
 		HealthBarWidgetComponent->SetVisibility(false);
 	}
-	CombatTarget = nullptr;
-	CurrentPatrolPoint = nullptr;
-	EnemyState = EEnemyState::EES_Dead;
 	SetLifeSpan(5.f);
 }
 
 void AEnemy::HandlePawnSeen(APawn* SeenPawn)
 {
-	if (SeenPawn && SeenPawn->ActorHasTag("CanSeenByEnemy") && !CombatTarget)
+	if (SeenPawn && SeenPawn->ActorHasTag("CanSeenByEnemy") && EnemyState == EEnemyState::EES_Patrolling)
 	{
 		CombatTarget = SeenPawn;
 		EnemyState = EEnemyState::EES_Chasing;
+		GetCharacterMovement()->MaxWalkSpeed = 300.f;
+		MoveToActor(CombatTarget);
 		GetWorldTimerManager().ClearTimer(PatrolTimerHandle);
+	}
+}
+
+void AEnemy::Attack()
+{
+	PlayAttackMontage();
+}
+
+void AEnemy::PlayAttackMontage()
+{
+	if (!GetMesh()) return;
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (!AnimInstance || !AttackMontage) return;
+	AnimInstance->Montage_Play(AttackMontage);
+	int32 Selection = FMath::RandRange(0, 1);
+	FName SectionName = FName();
+	switch (Selection)
+	{
+	case 0:
+		SectionName = FName("Attack1");
+		break;
+	case 1:
+		SectionName = FName("Attack2");
+		break;
+	default:
+		break;
+	}
+	AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
+}
+
+void AEnemy::Destroyed()
+{
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->Destroy();
 	}
 }
 
@@ -140,6 +187,7 @@ void AEnemy::CheckCombatTarget()
 	else if (IsNearTargetActor(CombatTarget, AttackRadius) && EnemyState != EEnemyState::EES_Attacking)
 	{
 		EnemyState = EEnemyState::EES_Attacking;
+		Attack();
 		UE_LOG(LogTemp, Warning, TEXT("Attacking"));
 	}
 }
@@ -208,8 +256,11 @@ float AEnemy::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, A
 		}
 		if (EventInstigator)
 		{
-			CombatTarget = EventInstigator->GetPawn();
-			EnemyState = EEnemyState::EES_Chasing;
+			if (CombatTarget != EventInstigator)
+			{
+				CombatTarget = EventInstigator->GetPawn();
+				EnemyState = EEnemyState::EES_Chasing;
+			}
 			GetWorldTimerManager().ClearTimer(PatrolTimerHandle);
 		}
 	}

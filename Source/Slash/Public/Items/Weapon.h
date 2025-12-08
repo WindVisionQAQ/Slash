@@ -19,7 +19,7 @@ class SLASH_API AWeapon : public AItem
 	GENERATED_BODY()
 public:
 	AWeapon();
-	void Equip(USceneComponent* AttachComponent, FName AttachSocketName, AActor* Owner, APawn* Instigator);
+	void Equip(USceneComponent* AttachComponent, FName AttachSocketName, AActor* Owner, APawn* Instigator, bool bPlaySound = true);
 	void AttachMeshToSocket(USceneComponent* AttachComponent, FName AttachSocketName);
 	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox; }
 	FORCEINLINE TArray<AActor*> GetActorsToIgnoreDuringBoxTrace() const { return ActorsToIgnoreDuringBoxTrace; }
