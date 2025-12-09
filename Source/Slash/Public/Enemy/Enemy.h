@@ -22,7 +22,6 @@ class SLASH_API AEnemy : public ABaseCharacter
 public:
 	AEnemy();
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 protected:
@@ -33,6 +32,8 @@ protected:
 	void Attack();
 	virtual void PlayAttackMontage() override;
 	virtual void Destroyed() override;
+	virtual bool CanAttack() override;
+	virtual void HandleDamage(float DamageAmount) override;
 private:
 	void MoveToActor(AActor* TargetActor);
 	bool IsNearTargetActor(AActor* TargetActor, float DistanceThreshold);
@@ -40,13 +41,37 @@ private:
 	void CheckPatrolTarget();
 	void RefreshPatrolPoint();
 	void MoveToNewPatrolPoint();
+	void HideHealthBar();
+	void ShowHealthBar();
+	void LoseInterest();
+	void StartPatrolling();
+	void ChaseTarget();
+	void StartAttackTimer();
+	void ClearPatrolTimer();
+	void ClearAttackTimer();
+
+	bool IsOutsideCombatRadius();
+	bool IsOutsideAttackRadius();
+	bool IsInsideAttackRadius();
+	bool IsChasing();
+	bool IsAttacking();
+	bool IsDead();
+	bool IsEngaged();
 protected:
 
-	UPROPERTY(EditAnywhere, Category = "Enemy Properties")
-	float AlertDistance = 1000.f;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float CombatRadius = 1000.f;
 
-	UPROPERTY(EditAnywhere, Category = "Enemy Properties")
-	float AttackRadius = 300.f;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float AttackRadius = 200.f;
+
+	FTimerHandle AttackTimer;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float AttackMin = 0.5f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float AttackMax = 1.f;
 
 	UPROPERTY(BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
@@ -66,7 +91,7 @@ private:
 	float PatrolRefreshDistance = 300.f;
 
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
-	float PatrolSpeed = 75.f;
+	float PatrolSpeed = 125.f;
 
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
 	float ChaseSpeed = 300.f;

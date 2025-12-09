@@ -26,6 +26,10 @@ protected:
 	virtual void BeginPlay() override;
 	virtual bool CanAttack();
 	virtual void Die();
+	bool IsAlive();
+	void PlayHitSound(const FVector& ImpactPoint);
+	void SpawnHitParticles(const FVector& ImpactPoint);
+	virtual void HandleDamage(float DamageAmount);
 	/**
 	* Play Animation montage function
 	*/
