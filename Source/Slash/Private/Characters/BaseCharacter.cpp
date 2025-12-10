@@ -6,6 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/AttributeComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/CapsuleComponent.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -39,9 +40,28 @@ void ABaseCharacter::BeginPlay()
 	
 }
 
-void ABaseCharacter::PlayAttackMontage()
+int32 ABaseCharacter::PlayAttackMontage()
 {
-	
+	return PlayRandomMontageSection(AttackMontage, AttackSections);
+}
+
+int32 ABaseCharacter::PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames)
+{
+	if (Montage == nullptr || SectionNames.Num() <= 0) return -1;
+	const int MaxSectionIndex = SectionNames.Num() - 1;
+	const int SectionIndex = FMath::RandRange(0, MaxSectionIndex);
+	PlayMontageSection(Montage, SectionNames[SectionIndex]);
+	return SectionIndex;
+}
+
+void ABaseCharacter::PlayMontageSection(UAnimMontage* Montage, const FName& SectionName)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && Montage)
+	{
+		AnimInstance->Montage_Play(Montage);
+		AnimInstance->Montage_JumpToSection(SectionName);
+	}
 }
 
 void ABaseCharacter::DirectionalHitReaction(const FVector& ImpactPoint)
@@ -111,6 +131,16 @@ void ABaseCharacter::HandleDamage(float DamageAmount)
 	}
 }
 
+void ABaseCharacter::DisableCapsuleCollision()
+{
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void ABaseCharacter::DisableMeshCollision()
+{
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
 void ABaseCharacter::PlayHitMontage(FName SectionName)
 {
 	UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
@@ -121,13 +151,8 @@ void ABaseCharacter::PlayHitMontage(FName SectionName)
 	}
 }
 
-void ABaseCharacter::PlayDeathMontage(FName SectionName)
+int32 ABaseCharacter::PlayDeathMontage()
 {
-	UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
-	if (AnimInstance)
-	{
-		AnimInstance->Montage_Play(DeathMontage);
-		AnimInstance->Montage_JumpToSection(SectionName, DeathMontage);
-	}
+	return PlayRandomMontageSection(DeathMontage, DeathSections);
 }
 

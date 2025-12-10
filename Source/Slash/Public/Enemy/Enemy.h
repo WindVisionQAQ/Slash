@@ -30,10 +30,10 @@ protected:
 	UFUNCTION()
 	void HandlePawnSeen(APawn* SeenPawn);
 	void Attack();
-	virtual void PlayAttackMontage() override;
 	virtual void Destroyed() override;
 	virtual bool CanAttack() override;
 	virtual void HandleDamage(float DamageAmount) override;
+	virtual int32 PlayDeathMontage() override;
 private:
 	void MoveToActor(AActor* TargetActor);
 	bool IsNearTargetActor(AActor* TargetActor, float DistanceThreshold);
@@ -73,8 +73,14 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float AttackMax = 1.f;
 
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	float DeathLifeSpan = 3.f;
+
 	UPROPERTY(BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
+
+	UPROPERTY(BlueprintReadOnly)
+	TEnumAsByte<EDeadPose> DeadPose;
 private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Health")

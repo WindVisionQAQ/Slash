@@ -30,19 +30,30 @@ protected:
 	void PlayHitSound(const FVector& ImpactPoint);
 	void SpawnHitParticles(const FVector& ImpactPoint);
 	virtual void HandleDamage(float DamageAmount);
+	void DisableCapsuleCollision();
+	void DisableMeshCollision();
 	/**
 	* Play Animation montage function
 	*/
 	void PlayHitMontage(FName SectionName);
-	void PlayDeathMontage(FName SectionName);
-	virtual void PlayAttackMontage();
+	virtual int32 PlayDeathMontage();
+	int32 PlayAttackMontage();
+	int32 PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames);
+	void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);
+	
 
 	void DirectionalHitReaction(const FVector& ImpactPoint);
 public:
 
 protected:
-	UPROPERTY(VisibleAnywhere, Category = Weapon)
+	UPROPERTY(VisibleAnywhere, Category = Combat)
 	AWeapon* EquippedWeapon;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	TArray<FName> AttackSections;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	TArray<FName> DeathSections;
 	/**
 	 * Animation Montages
 	 */

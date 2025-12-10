@@ -32,7 +32,6 @@ protected:
 	virtual bool CanAttack() override;
 	bool CanArm();
 	bool CanDisarm();
-	virtual void PlayAttackMontage() override;
 protected:
 	/** Slash character input related, begin **/
 

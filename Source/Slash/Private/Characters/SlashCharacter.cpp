@@ -154,28 +154,6 @@ void ASlashCharacter::Disarm()
 	EquippedWeapon->AttachMeshToSocket(GetMesh(), EquippedWeapon->GetItemDisarmAttachSocketName());
 }
 
-void ASlashCharacter::PlayAttackMontage()
-{
-	if (!GetMesh()) return;
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (!AnimInstance || !AttackMontage) return;
-	AnimInstance->Montage_Play(AttackMontage);
-	int32 Selection = FMath::RandRange(0, 1);
-	FName SectionName = FName();
-	switch (Selection)
-	{
-	case 0:
-		SectionName = FName("Attack1");
-		break;
-	case 1:
-		SectionName = FName("Attack2");
-		break;
-	default:
-		break;
-	}
-	AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
-}
-
 void ASlashCharacter::PlayEquipMontage(FName SectionName)
 {
 	if (!GetMesh()) return;

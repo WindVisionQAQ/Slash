@@ -70,29 +70,14 @@ void AEnemy::BeginPlay()
 
 void AEnemy::Die()
 {
-	CombatTarget = nullptr;
-	CurrentPatrolPoint = nullptr;
 	EnemyState = EEnemyState::EES_Dead;
-	if (DeathMontage)
-	{
-		const int32 DeathMontageSectionNum = DeathMontage->GetNumSections();
-		const int32 Selection = FMath::RandRange(1, DeathMontageSectionNum);
-		FName SectionName = FName(*FString::Printf(TEXT("Death%d"), Selection));
-		PlayDeathMontage(SectionName);
-	}
-	if (GetCapsuleComponent())
-	{
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
-	if (GetMesh())
-	{
-		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
-	if (HealthBarWidgetComponent)
-	{
-		HealthBarWidgetComponent->SetVisibility(false);
-	}
-	SetLifeSpan(5.f);
+	ClearAttackTimer();
+	PlayDeathMontage();
+	DisableCapsuleCollision();
+	DisableMeshCollision();
+	HideHealthBar();
+	SetLifeSpan(DeathLifeSpan);
+	GetCharacterMovement()->bOrientRotationToMovement = false;
 }
 
 void AEnemy::HandlePawnSeen(APawn* SeenPawn)
@@ -115,28 +100,6 @@ void AEnemy::HandlePawnSeen(APawn* SeenPawn)
 void AEnemy::Attack()
 {
 	PlayAttackMontage();
-}
-
-void AEnemy::PlayAttackMontage()
-{
-	if (!GetMesh()) return;
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (!AnimInstance || !AttackMontage) return;
-	AnimInstance->Montage_Play(AttackMontage);
-	int32 Selection = FMath::RandRange(0, 1);
-	FName SectionName = FName();
-	switch (Selection)
-	{
-	case 0:
-		SectionName = FName("Attack1");
-		break;
-	case 1:
-		SectionName = FName("Attack2");
-		break;
-	default:
-		break;
-	}
-	AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
 }
 
 void AEnemy::Destroyed()
@@ -163,6 +126,17 @@ void AEnemy::HandleDamage(float DamageAmount)
 	{
 		HealthBarWidgetComponent->SetHealthPercentage(AttributeComp->GetHealthPercentage());
 	}
+}
+
+int32 AEnemy::PlayDeathMontage()
+{
+	const int32 SectionIndex = Super::PlayDeathMontage();
+	TEnumAsByte<EDeadPose> Pose(SectionIndex);
+	if (SectionIndex >= 0 && Pose < EDeadPose::EDP_MAX)
+	{
+		DeadPose = Pose;
+	}
+	return SectionIndex;
 }
 
 void AEnemy::MoveToActor(AActor* TargetActor)
