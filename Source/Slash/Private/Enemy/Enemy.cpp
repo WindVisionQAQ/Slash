@@ -2,11 +2,6 @@
 
 
 #include "Enemy/Enemy.h"
-#include "Components/CapsuleComponent.h"
-#include "Slash/DebugMacros.h"
-#include "Kismet/KismetSystemLibrary.h"
-#include "Animation/AnimInstance.h"
-#include "Animation/AnimMontage.h"
 #include "Components/AttributeComponent.h"
 #include "HUD/HealthBarWidgetComponent.h"
 #include "AIController.h"
@@ -22,8 +17,6 @@ AEnemy::AEnemy()
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
 	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetGenerateOverlapEvents(true);
-
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 
 	HealthBarWidgetComponent = CreateDefaultSubobject<UHealthBarWidgetComponent>(TEXT("HealthBarComp"));
 	HealthBarWidgetComponent->SetupAttachment(GetRootComponent());
@@ -99,6 +92,7 @@ void AEnemy::HandlePawnSeen(APawn* SeenPawn)
 
 void AEnemy::Attack()
 {
+	EnemyState = EEnemyState::EES_Engaged;
 	PlayAttackMontage();
 }
 
@@ -115,8 +109,15 @@ bool AEnemy::CanAttack()
 	const bool bCanAttack =
 		IsInsideAttackRadius() &&
 		!IsAttacking() &&
+		!IsEngaged() &&
 		!IsDead();
 	return bCanAttack;
+}
+
+void AEnemy::AttackEnd()
+{
+	EnemyState = EEnemyState::EES_NoState;
+	CheckCombatTarget();
 }
 
 void AEnemy::HandleDamage(float DamageAmount)

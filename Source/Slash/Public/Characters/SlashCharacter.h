@@ -30,6 +30,7 @@ protected:
 	virtual void BeginPlay() override;
 	void PlayEquipMontage(FName SectionName);
 	virtual bool CanAttack() override;
+	virtual void AttackEnd() override;
 	bool CanArm();
 	bool CanDisarm();
 protected:

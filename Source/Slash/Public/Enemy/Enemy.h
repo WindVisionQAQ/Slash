@@ -26,12 +26,11 @@ public:
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 protected:
 	virtual void BeginPlay() override;
-	virtual void Die() override;
-	UFUNCTION()
-	void HandlePawnSeen(APawn* SeenPawn);
-	void Attack();
 	virtual void Destroyed() override;
+	virtual void Die() override;
+	void Attack();
 	virtual bool CanAttack() override;
+	virtual void AttackEnd() override;
 	virtual void HandleDamage(float DamageAmount) override;
 	virtual int32 PlayDeathMontage() override;
 private:
@@ -49,6 +48,8 @@ private:
 	void StartAttackTimer();
 	void ClearPatrolTimer();
 	void ClearAttackTimer();
+	UFUNCTION()
+	void HandlePawnSeen(APawn* SeenPawn);
 
 	bool IsOutsideCombatRadius();
 	bool IsOutsideAttackRadius();
@@ -112,8 +113,4 @@ private:
 	AAIController* EnemyController = nullptr;
 
 	FTimerHandle PatrolTimerHandle;
-
-public:
-
-
 };

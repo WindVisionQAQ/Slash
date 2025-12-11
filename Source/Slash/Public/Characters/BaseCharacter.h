@@ -32,6 +32,8 @@ protected:
 	virtual void HandleDamage(float DamageAmount);
 	void DisableCapsuleCollision();
 	void DisableMeshCollision();
+	UFUNCTION(BlueprintCallable)
+	virtual void AttackEnd();
 	/**
 	* Play Animation montage function
 	*/

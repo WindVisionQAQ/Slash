@@ -122,6 +122,11 @@ bool ASlashCharacter::CanAttack()
 	return CharacterState != ECharacterState::ECS_UnEquipped && ActionState == EActionState::EAS_Unoccupied;
 }
 
+void ASlashCharacter::AttackEnd()
+{
+	SetActionState(EActionState::EAS_Unoccupied);
+}
+
 bool ASlashCharacter::CanArm()
 {
 	return ActionState == EActionState::EAS_Unoccupied &&

@@ -12,6 +12,8 @@ ABaseCharacter::ABaseCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	AttributeComp = CreateDefaultSubobject<UAttributeComponent>(TEXT("AttributeComponent"));
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 }
 
 void ABaseCharacter::Tick(float DeltaTime)
@@ -139,6 +141,11 @@ void ABaseCharacter::DisableCapsuleCollision()
 void ABaseCharacter::DisableMeshCollision()
 {
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void ABaseCharacter::AttackEnd()
+{
+
 }
 
 void ABaseCharacter::PlayHitMontage(FName SectionName)
