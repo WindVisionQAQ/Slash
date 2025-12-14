@@ -51,8 +51,7 @@ ASlashCharacter::ASlashCharacter()
 
 void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint)
 {
-	PlayHitSound(ImpactPoint);
-	SpawnHitParticles(ImpactPoint);
+	Super::GetHit_Implementation(ImpactPoint);
 }
 
 void ASlashCharacter::Tick(float DeltaTime)
