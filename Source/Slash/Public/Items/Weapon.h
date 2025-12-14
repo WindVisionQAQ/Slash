@@ -26,22 +26,30 @@ public:
 	FORCEINLINE void ClearActorsToIgnore() { ActorsToIgnoreDuringBoxTrace.Reset(); }
 protected:
 	virtual void BeginPlay() override;
-	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
-	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
+	void PlayEquipSound();
+	void DisableSphereCollision();
+	void DeactivateEmbers();
+	void ExecuteGetHit(const FHitResult& BoxHitResult);
+	bool IsIgnoreWeaponOverlapOrHit(AActor* OtherActor);
+
 	UFUNCTION()
 	void OnWeaponBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION(BlueprintImplementableEvent)
 	void CreateField(const FVector& Position);
 private:
+	void BoxTrace(FHitResult& BoxHit);
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	FVector BoxTraceExtent = FVector(5.f);
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
+	bool bDebugBoxTrace = false;
+
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	USoundBase* EquipSound;
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Properties")
 	float Damage;
-
-	/**
-	 * Box trace related
-	 */
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	UBoxComponent* WeaponBox;
@@ -53,4 +61,5 @@ private:
 	USceneComponent* BoxTraceEnd;
 
 	TArray<AActor*> ActorsToIgnoreDuringBoxTrace;
+
 };

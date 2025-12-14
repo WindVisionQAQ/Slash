@@ -24,6 +24,7 @@ class SLASH_API ASlashCharacter : public ABaseCharacter
 
 public:
 	ASlashCharacter();
+	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	FORCEINLINE AItem* GetOverlappingItem() const { return OverlappingItem; }

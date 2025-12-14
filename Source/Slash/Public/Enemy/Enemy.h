@@ -55,7 +55,7 @@ private:
 	bool IsAttacking();
 	bool IsDead();
 	bool IsEngaged();
-
+	void InitWeapon();
 	UFUNCTION()
 	void HandlePawnSeen(APawn* SeenPawn);
 protected:

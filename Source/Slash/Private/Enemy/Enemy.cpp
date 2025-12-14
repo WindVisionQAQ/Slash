@@ -78,31 +78,16 @@ float AEnemy::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, A
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	if (HealthBarWidgetComponent)
-	{
-		HealthBarWidgetComponent->SetHealthPercentage(1.f);
-		HealthBarWidgetComponent->SetVisibility(false);
-	}
-	GetCharacterMovement()->MaxWalkSpeed = 150.f;
 	EnemyController = Cast<AAIController>(GetController());
+	HideHealthBar();
 	if (!CurrentPatrolPoint) RefreshPatrolPoint();
-	if (EnemyController && CurrentPatrolPoint)
-	{
-		MoveToActor(CurrentPatrolPoint);
-	}
+	StartPatrolling();
 	if (PawnSensingComp)
 	{
 		PawnSensingComp->OnSeePawn.AddDynamic(this, &AEnemy::HandlePawnSeen);
 	}
-	if (WeaponClass)
-	{
-		EquippedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass);
-		if (EquippedWeapon)
-		{
-			EquippedWeapon->Equip(GetMesh(), FName("RightHandSocket"), this, this, false);
-		}
-		
-	}
+	InitWeapon();
+	Tags.Add("Enemy");
 }
 
 void AEnemy::Destroyed()
@@ -320,6 +305,18 @@ bool AEnemy::IsEngaged()
 	return EnemyState == EEnemyState::EES_Engaged;
 }
 
+void AEnemy::InitWeapon()
+{
+	if (WeaponClass)
+	{
+		EquippedWeapon = GetWorld()->SpawnActor<AWeapon>(WeaponClass);
+		if (EquippedWeapon)
+		{
+			EquippedWeapon->Equip(GetMesh(), EquippedWeapon->GetItemArmAttachSocketName(), this, this, false);
+		}
+	}
+}
+
 void AEnemy::HandlePawnSeen(APawn* SeenPawn)
 {
 	const bool bShouldChaseTarget =
@@ -327,7 +324,7 @@ void AEnemy::HandlePawnSeen(APawn* SeenPawn)
 		!IsChasing() &&
 		EnemyState < EEnemyState::EES_Attacking &&
 		SeenPawn &&
-		SeenPawn->ActorHasTag("CanSeenByEnemy");
+		SeenPawn->ActorHasTag("EngagableActor");
 
 	if (bShouldChaseTarget)
 	{

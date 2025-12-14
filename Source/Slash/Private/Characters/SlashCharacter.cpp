@@ -26,6 +26,12 @@ ASlashCharacter::ASlashCharacter()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	CameraComp->SetupAttachment(SpringArmComp);
 
+	GetMesh()->SetGenerateOverlapEvents(true);
+	GetMesh()->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	GetMesh()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	GetMesh()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Overlap);
+
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
@@ -41,7 +47,12 @@ ASlashCharacter::ASlashCharacter()
 	EyebrowComp = CreateDefaultSubobject<UGroomComponent>(TEXT("Eyebrow"));
 	EyebrowComp->SetupAttachment(GetMesh());
 	EyebrowComp->AttachmentName = TEXT("head");
-	Tags.Add("CanSeenByEnemy");
+}
+
+void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+{
+	PlayHitSound(ImpactPoint);
+	SpawnHitParticles(ImpactPoint);
 }
 
 void ASlashCharacter::Tick(float DeltaTime)
@@ -93,6 +104,8 @@ void ASlashCharacter::BeginPlay()
 			Subsystem->AddMappingContext(SlashContext, 0);
 		}
 	}
+
+	Tags.Add("EngagableActor");
 }
 
 void ASlashCharacter::PlayEquipMontage(FName SectionName)
