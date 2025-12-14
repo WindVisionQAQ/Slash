@@ -19,9 +19,10 @@ class SLASH_API ABaseCharacter : public ACharacter, public IHitInterface
 public:
 	ABaseCharacter();
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+
 	UFUNCTION(BlueprintCallable)
 	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
-	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 protected:
 	virtual void BeginPlay() override;
 	virtual bool CanAttack();
@@ -32,21 +33,15 @@ protected:
 	virtual void HandleDamage(float DamageAmount);
 	void DisableCapsuleCollision();
 	void DisableMeshCollision();
-	UFUNCTION(BlueprintCallable)
-	virtual void AttackEnd();
-	/**
-	* Play Animation montage function
-	*/
 	void PlayHitMontage(FName SectionName);
 	virtual int32 PlayDeathMontage();
 	int32 PlayAttackMontage();
 	int32 PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames);
 	void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);
-	
-
 	void DirectionalHitReaction(const FVector& ImpactPoint);
-public:
 
+	UFUNCTION(BlueprintCallable)
+	virtual void AttackEnd();
 protected:
 	UPROPERTY(VisibleAnywhere, Category = Combat)
 	AWeapon* EquippedWeapon;
@@ -56,9 +51,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	TArray<FName> DeathSections;
-	/**
-	 * Animation Montages
-	 */
+
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* HitMontage;
 
@@ -71,15 +64,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	AActor* CombatTarget;
 
-	/**
-	 * Sound Resources
-	 */
 	UPROPERTY(EditAnywhere, Category = Sound)
 	USoundBase* HitSound;
 
-	/**
-	 * Visual Effects
-	 */
 	UPROPERTY(EditAnywhere, Category = VisualEffects)
 	UParticleSystem* HitEffects;
 

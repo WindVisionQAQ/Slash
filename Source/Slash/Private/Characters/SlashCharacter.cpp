@@ -44,6 +44,44 @@ ASlashCharacter::ASlashCharacter()
 	Tags.Add("CanSeenByEnemy");
 }
 
+void ASlashCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
+void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	if (UEnhancedInputComponent* EnhancedInput = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Move);
+		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Look);
+		EnhancedInput->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		EnhancedInput->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ASlashCharacter::EquipItem);
+		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack);
+	}
+}
+
+void ASlashCharacter::Arm()
+{
+	if (!EquippedWeapon)
+	{
+		return;
+	}
+	EquippedWeapon->AttachMeshToSocket(GetMesh(), EquippedWeapon->GetItemArmAttachSocketName());
+}
+
+void ASlashCharacter::Disarm()
+{
+	if (!EquippedWeapon)
+	{
+		return;
+	}
+	EquippedWeapon->AttachMeshToSocket(GetMesh(), EquippedWeapon->GetItemDisarmAttachSocketName());
+}
+
 void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -55,6 +93,35 @@ void ASlashCharacter::BeginPlay()
 			Subsystem->AddMappingContext(SlashContext, 0);
 		}
 	}
+}
+
+void ASlashCharacter::PlayEquipMontage(FName SectionName)
+{
+	PlayMontageSection(EquipMontage, SectionName);
+}
+
+bool ASlashCharacter::CanAttack()
+{
+	return CharacterState != ECharacterState::ECS_UnEquipped && ActionState == EActionState::EAS_Unoccupied;
+}
+
+void ASlashCharacter::AttackEnd()
+{
+	SetActionState(EActionState::EAS_Unoccupied);
+}
+
+bool ASlashCharacter::CanArm()
+{
+	return ActionState == EActionState::EAS_Unoccupied &&
+		CharacterState == ECharacterState::ECS_UnEquipped &&
+		EquippedWeapon;
+}
+
+bool ASlashCharacter::CanDisarm()
+{
+	return ActionState == EActionState::EAS_Unoccupied &&
+		CharacterState != ECharacterState::ECS_UnEquipped &&
+		EquippedWeapon;
 }
 
 void ASlashCharacter::Move(const FInputActionValue& Value)
@@ -84,10 +151,7 @@ void ASlashCharacter::EquipItem(const FInputActionValue& Value)
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
 	if (OverlappingWeapon)
 	{
-		OverlappingWeapon->Equip(GetMesh(), OverlappingWeapon->GetItemArmAttachSocketName(), this, this);
-		OverlappingItem = nullptr;
-		EquippedWeapon = OverlappingWeapon;
-		CharacterState = OverlappingWeapon->GetItemCharacterStateOnEquipped();
+		EquipWeapon(OverlappingWeapon);
 	}
 	else
 	{
@@ -117,75 +181,11 @@ void ASlashCharacter::Attack(const FInputActionValue& Value)
 	}
 }
 
-bool ASlashCharacter::CanAttack()
+void ASlashCharacter::EquipWeapon(AWeapon* OverlappingWeapon)
 {
-	return CharacterState != ECharacterState::ECS_UnEquipped && ActionState == EActionState::EAS_Unoccupied;
+	OverlappingWeapon->Equip(GetMesh(), OverlappingWeapon->GetItemArmAttachSocketName(), this, this);
+	OverlappingItem = nullptr;
+	EquippedWeapon = OverlappingWeapon;
+	CharacterState = OverlappingWeapon->GetItemCharacterStateOnEquipped();
 }
-
-void ASlashCharacter::AttackEnd()
-{
-	SetActionState(EActionState::EAS_Unoccupied);
-}
-
-bool ASlashCharacter::CanArm()
-{
-	return ActionState == EActionState::EAS_Unoccupied &&
-		CharacterState == ECharacterState::ECS_UnEquipped &&
-		EquippedWeapon;
-}
-
-bool ASlashCharacter::CanDisarm()
-{
-	return ActionState == EActionState::EAS_Unoccupied &&
-		CharacterState != ECharacterState::ECS_UnEquipped &&
-		EquippedWeapon;
-}
-
-void ASlashCharacter::Arm()
-{
-	if (!EquippedWeapon)
-	{
-		return;
-	}
-	EquippedWeapon->AttachMeshToSocket(GetMesh(), EquippedWeapon->GetItemArmAttachSocketName());
-}
-
-void ASlashCharacter::Disarm()
-{
-	if (!EquippedWeapon)
-	{
-		return;
-	}
-	EquippedWeapon->AttachMeshToSocket(GetMesh(), EquippedWeapon->GetItemDisarmAttachSocketName());
-}
-
-void ASlashCharacter::PlayEquipMontage(FName SectionName)
-{
-	if (!GetMesh()) return;
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (!AnimInstance || !EquipMontage) return;
-	AnimInstance->Montage_Play(EquipMontage);
-	AnimInstance->Montage_JumpToSection(SectionName, EquipMontage);
-}
-
-void ASlashCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	if (UEnhancedInputComponent* EnhancedInput = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
-	{
-		EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Move);
-		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Look);
-		EnhancedInput->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInput->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ASlashCharacter::EquipItem);
-		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack);
-	}
-}
-
 

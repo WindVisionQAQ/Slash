@@ -26,6 +26,18 @@ public:
 	ASlashCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	FORCEINLINE AItem* GetOverlappingItem() const { return OverlappingItem; }
+	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
+	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetCharacterState(ECharacterState NewState) { CharacterState = NewState; }
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetActionState(EActionState NewState) { ActionState = NewState; }
+	UFUNCTION(BlueprintCallable)
+	void Arm();
+	UFUNCTION(BlueprintCallable)
+	void Disarm();
 protected:
 	virtual void BeginPlay() override;
 	void PlayEquipMontage(FName SectionName);
@@ -33,9 +45,13 @@ protected:
 	virtual void AttackEnd() override;
 	bool CanArm();
 	bool CanDisarm();
+	void Move(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
+	void EquipItem(const FInputActionValue& Value);
+	void Attack(const FInputActionValue& Value);
+private:
+	void EquipWeapon(AWeapon* OverlappingWeapon);
 protected:
-	/** Slash character input related, begin **/
-
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputMappingContext* SlashContext;
 
@@ -53,13 +69,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* AttackAction;
-
-	void Move(const FInputActionValue& Value);
-	void Look(const FInputActionValue& Value);
-	void EquipItem(const FInputActionValue& Value);
-	void Attack(const FInputActionValue& Value);
-
-	/** Slash character input related, end **/
 private:
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArmComp;
@@ -82,17 +91,4 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* EquipMontage;
 
-public:
-	FORCEINLINE AItem* GetOverlappingItem() const { return OverlappingItem; }
-	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
-	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
-
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void SetCharacterState(ECharacterState NewState) { CharacterState = NewState; }
-	UFUNCTION(BlueprintCallable)
-	FORCEINLINE void SetActionState(EActionState NewState) { ActionState = NewState; }
-	UFUNCTION(BlueprintCallable)
-	void Arm();
-	UFUNCTION(BlueprintCallable)
-	void Disarm();
 };

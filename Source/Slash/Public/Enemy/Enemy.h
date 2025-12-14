@@ -48,9 +48,6 @@ private:
 	void StartAttackTimer();
 	void ClearPatrolTimer();
 	void ClearAttackTimer();
-	UFUNCTION()
-	void HandlePawnSeen(APawn* SeenPawn);
-
 	bool IsOutsideCombatRadius();
 	bool IsOutsideAttackRadius();
 	bool IsInsideAttackRadius();
@@ -58,6 +55,9 @@ private:
 	bool IsAttacking();
 	bool IsDead();
 	bool IsEngaged();
+
+	UFUNCTION()
+	void HandlePawnSeen(APawn* SeenPawn);
 protected:
 
 	UPROPERTY(EditAnywhere, Category = "Combat")

@@ -31,6 +31,50 @@ AEnemy::AEnemy()
 	PawnSensingComp->SightRadius = 2000.f;
 }
 
+void AEnemy::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	if (IsDead()) return;
+	if (EnemyState > EEnemyState::EES_Patrolling)
+	{
+		CheckCombatTarget();
+	}
+	else if (EnemyState > EEnemyState::EES_Dead)
+	{
+		CheckPatrolTarget();
+	}
+
+}
+
+void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
+{
+	ShowHealthBar();
+	if (IsAlive())
+	{
+		DirectionalHitReaction(ImpactPoint);
+	}
+	else
+	{
+		Die();
+	}
+
+	PlayHitSound(ImpactPoint);
+
+	SpawnHitParticles(ImpactPoint);
+}
+
+float AEnemy::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	HandleDamage(Damage);
+	if (EventInstigator && CombatTarget != EventInstigator->GetPawn())
+	{
+		CombatTarget = EventInstigator->GetPawn();
+		ChaseTarget();
+		ClearPatrolTimer();
+	}
+	return Damage;
+}
+
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
@@ -61,6 +105,14 @@ void AEnemy::BeginPlay()
 	}
 }
 
+void AEnemy::Destroyed()
+{
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->Destroy();
+	}
+}
+
 void AEnemy::Die()
 {
 	EnemyState = EEnemyState::EES_Dead;
@@ -73,35 +125,10 @@ void AEnemy::Die()
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 }
 
-void AEnemy::HandlePawnSeen(APawn* SeenPawn)
-{
-	const bool bShouldChaseTarget =
-		!IsDead() &&
-		!IsChasing() &&
-		EnemyState < EEnemyState::EES_Attacking &&
-		SeenPawn &&
-		SeenPawn->ActorHasTag("CanSeenByEnemy");
-
-	if (bShouldChaseTarget)
-	{
-		CombatTarget = SeenPawn;
-		ClearPatrolTimer();
-		ChaseTarget();
-	}
-}
-
 void AEnemy::Attack()
 {
 	EnemyState = EEnemyState::EES_Engaged;
 	PlayAttackMontage();
-}
-
-void AEnemy::Destroyed()
-{
-	if (EquippedWeapon)
-	{
-		EquippedWeapon->Destroy();
-	}
 }
 
 bool AEnemy::CanAttack()
@@ -200,7 +227,6 @@ void AEnemy::RefreshPatrolPoint()
 	}
 }
 
-
 void AEnemy::MoveToNewPatrolPoint()
 {
 	MoveToActor(CurrentPatrolPoint);
@@ -294,47 +320,19 @@ bool AEnemy::IsEngaged()
 	return EnemyState == EEnemyState::EES_Engaged;
 }
 
-void AEnemy::Tick(float DeltaTime)
+void AEnemy::HandlePawnSeen(APawn* SeenPawn)
 {
-	Super::Tick(DeltaTime);
-	if (IsDead()) return;
-	if (EnemyState > EEnemyState::EES_Patrolling)
-	{
-		CheckCombatTarget();
-	}
-	else if (EnemyState > EEnemyState::EES_Dead)
-	{
-		CheckPatrolTarget();
-	}
-	
-}
+	const bool bShouldChaseTarget =
+		!IsDead() &&
+		!IsChasing() &&
+		EnemyState < EEnemyState::EES_Attacking &&
+		SeenPawn &&
+		SeenPawn->ActorHasTag("CanSeenByEnemy");
 
-float AEnemy::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	HandleDamage(Damage);
-	if (EventInstigator && CombatTarget != EventInstigator->GetPawn())
+	if (bShouldChaseTarget)
 	{
-		CombatTarget = EventInstigator->GetPawn();
-		ChaseTarget();
+		CombatTarget = SeenPawn;
 		ClearPatrolTimer();
+		ChaseTarget();
 	}
-	return Damage;
 }
-
-void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
-{
-	ShowHealthBar();
-	if (IsAlive())
-	{
-		DirectionalHitReaction(ImpactPoint);
-	}
-	else
-	{
-		Die();
-	}
-	
-	PlayHitSound(ImpactPoint);
-
-	SpawnHitParticles(ImpactPoint);
-}
-
