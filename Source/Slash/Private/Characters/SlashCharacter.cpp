@@ -52,6 +52,7 @@ ASlashCharacter::ASlashCharacter()
 void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint)
 {
 	Super::GetHit_Implementation(ImpactPoint);
+	ActionState = EActionState::EAS_HitReacting;
 }
 
 void ASlashCharacter::Tick(float DeltaTime)
@@ -90,6 +91,11 @@ void ASlashCharacter::Disarm()
 		return;
 	}
 	EquippedWeapon->AttachMeshToSocket(GetMesh(), EquippedWeapon->GetItemDisarmAttachSocketName());
+}
+
+void ASlashCharacter::HitReactionEnd()
+{
+	ActionState = EActionState::EAS_Unoccupied;
 }
 
 void ASlashCharacter::BeginPlay()

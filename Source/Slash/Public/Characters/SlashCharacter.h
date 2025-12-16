@@ -39,6 +39,8 @@ public:
 	void Arm();
 	UFUNCTION(BlueprintCallable)
 	void Disarm();
+	UFUNCTION(BlueprintCallable)
+	void HitReactionEnd();
 protected:
 	virtual void BeginPlay() override;
 	void PlayEquipMontage(FName SectionName);

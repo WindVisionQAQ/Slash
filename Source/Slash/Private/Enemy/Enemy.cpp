@@ -49,7 +49,7 @@ void AEnemy::Tick(float DeltaTime)
 void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
 {
 	Super::GetHit_Implementation(ImpactPoint);
-	ShowHealthBar();
+	if (!IsDead()) ShowHealthBar();
 }
 
 float AEnemy::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -97,6 +97,7 @@ void AEnemy::Die()
 	HideHealthBar();
 	SetLifeSpan(DeathLifeSpan);
 	GetCharacterMovement()->bOrientRotationToMovement = false;
+	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AEnemy::Attack()
