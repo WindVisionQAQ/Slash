@@ -19,7 +19,7 @@ class SLASH_API ABaseCharacter : public ACharacter, public IHitInterface
 public:
 	ABaseCharacter();
 	virtual void Tick(float DeltaTime) override;
-	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, const AActor* HitInstigator) override;
 
 	UFUNCTION(BlueprintCallable)
 	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
@@ -39,6 +39,7 @@ protected:
 	int32 PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames);
 	void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);
 	void DirectionalHitReaction(const FVector& ImpactPoint);
+	void StopAttackMontage();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackEnd();

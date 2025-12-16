@@ -49,9 +49,10 @@ ASlashCharacter::ASlashCharacter()
 	EyebrowComp->AttachmentName = TEXT("head");
 }
 
-void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint, const AActor* HitInstigator)
 {
-	Super::GetHit_Implementation(ImpactPoint);
+	Super::GetHit_Implementation(ImpactPoint, HitInstigator);
+	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
 	ActionState = EActionState::EAS_HitReacting;
 }
 

@@ -22,7 +22,7 @@ class SLASH_API AEnemy : public ABaseCharacter
 public:
 	AEnemy();
 	virtual void Tick(float DeltaTime) override;
-	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, const AActor* HitInstigator) override;
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 protected:
 	virtual void BeginPlay() override;

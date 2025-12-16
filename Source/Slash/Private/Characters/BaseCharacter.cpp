@@ -22,11 +22,11 @@ void ABaseCharacter::Tick(float DeltaTime)
 
 }
 
-void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint, const AActor* HitInstigator)
 {
 	if (IsAlive())
 	{
-		DirectionalHitReaction(ImpactPoint);
+		if (HitInstigator)	DirectionalHitReaction(HitInstigator->GetActorLocation());
 	}
 	else
 	{
@@ -165,6 +165,15 @@ void ABaseCharacter::DirectionalHitReaction(const FVector& ImpactPoint)
 		SectionName = FName("FromLeft");
 	}
 	PlayHitMontage(SectionName);
+}
+
+void ABaseCharacter::StopAttackMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && AttackMontage)
+	{
+		AnimInstance->Montage_Stop(0.25f, AttackMontage);
+	}
 }
 
 void ABaseCharacter::AttackEnd()
