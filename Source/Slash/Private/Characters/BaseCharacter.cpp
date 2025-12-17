@@ -7,11 +7,13 @@
 #include "Components/AttributeComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
+#include "MotionWarpingComponent.h"
 
 ABaseCharacter::ABaseCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	AttributeComp = CreateDefaultSubobject<UAttributeComponent>(TEXT("AttributeComponent"));
+	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>(TEXT("MotionWarping"));
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Camera, ECollisionResponse::ECR_Ignore);
 }
@@ -19,7 +21,12 @@ ABaseCharacter::ABaseCharacter()
 void ABaseCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
+	if (MotionWarpingComp)
+	{
+		MotionWarpingComp->AddOrUpdateWarpTargetFromLocation("TranslationTarget", GetTranslationTarget());
+		MotionWarpingComp->AddOrUpdateWarpTargetFromLocation("RotationTarget", GetRotationTarget());
+	}
 }
 
 void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint, const AActor* HitInstigator)
@@ -174,6 +181,23 @@ void ABaseCharacter::StopAttackMontage()
 	{
 		AnimInstance->Montage_Stop(0.25f, AttackMontage);
 	}
+}
+
+FVector ABaseCharacter::GetTranslationTarget()
+{
+	if (CombatTarget)
+	{
+		const FVector CombatTargetLoc = CombatTarget->GetActorLocation();
+		const FVector SelfLocation = GetActorLocation();
+		FVector TargetToMeDirection = (SelfLocation - CombatTargetLoc).GetSafeNormal();
+		return TargetToMeDirection * TranslationWarpingDistance + CombatTargetLoc;
+	}
+	return FVector();
+}
+
+FVector ABaseCharacter::GetRotationTarget()
+{
+	return CombatTarget ? CombatTarget->GetActorLocation() : FVector();
 }
 
 void ABaseCharacter::AttackEnd()

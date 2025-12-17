@@ -8,7 +8,7 @@ public class Slash : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HairStrandsCore", "Niagara", "EnhancedInput", "GeometryCollectionEngine", "UMG", "AIModule" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HairStrandsCore", "Niagara", "EnhancedInput", "GeometryCollectionEngine", "UMG", "AIModule", "MotionWarping" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

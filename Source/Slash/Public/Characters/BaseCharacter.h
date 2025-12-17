@@ -10,6 +10,7 @@
 class AWeapon;
 class UAttributeComponent;
 class UParticleSystem;
+class UMotionWarpingComponent;
 
 UCLASS()
 class SLASH_API ABaseCharacter : public ACharacter, public IHitInterface
@@ -40,6 +41,8 @@ protected:
 	void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);
 	void DirectionalHitReaction(const FVector& ImpactPoint);
 	void StopAttackMontage();
+	FVector GetTranslationTarget();
+	FVector GetRotationTarget();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackEnd();
@@ -52,6 +55,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Combat)
 	TArray<FName> DeathSections;
+
+	UPROPERTY(EditAnywhere, Category = Combat)
+	float TranslationWarpingDistance = 75.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* HitMontage;
@@ -73,5 +79,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Attributes")
 	UAttributeComponent* AttributeComp;
+
+	UPROPERTY(VisibleAnywhere)
+	UMotionWarpingComponent* MotionWarpingComp;
 
 };
