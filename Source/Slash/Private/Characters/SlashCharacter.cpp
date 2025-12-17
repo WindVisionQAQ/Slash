@@ -56,6 +56,12 @@ void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint, const AA
 	ActionState = EActionState::EAS_HitReacting;
 }
 
+float ASlashCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	HandleDamage(Damage);
+	return Damage;
+}
+
 void ASlashCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
