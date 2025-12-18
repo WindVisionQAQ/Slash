@@ -16,6 +16,8 @@ class UInputAction;
 class AItem;
 class UAnimMontage;
 class AWeapon;
+class ASlashHUD;
+class USlashOverlay;
 
 UCLASS()
 class SLASH_API ASlashCharacter : public ABaseCharacter
@@ -28,6 +30,7 @@ public:
 	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void Jump() override;
 	FORCEINLINE AItem* GetOverlappingItem() const { return OverlappingItem; }
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
@@ -53,8 +56,13 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void EquipItem(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
+	virtual void HandleDamage(float DamageAmount);
 private:
 	void EquipWeapon(AWeapon* OverlappingWeapon);
+	void InitInput();
+	USlashOverlay* GetSlashOverlay();
+	void InitSlashOverlay();
+	bool IsUnoccupied() const;
 protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputMappingContext* SlashContext;
@@ -74,6 +82,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* AttackAction;
 private:
+	ECharacterState CharacterState = ECharacterState::ECS_UnEquipped;
+	EActionState ActionState = EActionState::EAS_Unoccupied;
+	ASlashHUD* SlashHUDInst = nullptr;
+
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArmComp;
 
@@ -85,12 +97,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	UGroomComponent* EyebrowComp;
+
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
-
-	ECharacterState CharacterState = ECharacterState::ECS_UnEquipped;
-
-	EActionState ActionState = EActionState::EAS_Unoccupied;
 
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* EquipMontage;

@@ -13,6 +13,9 @@
 #include "Items/Weapon.h"
 #include "Animation/AnimMontage.h"
 #include "Components/BoxComponent.h"
+#include "HUD/SlashHUD.h"
+#include "HUD/SlashOverlay.h"
+#include "Components/AttributeComponent.h"
 
 ASlashCharacter::ASlashCharacter()
 {
@@ -76,9 +79,17 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	{
 		EnhancedInput->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Move);
 		EnhancedInput->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Look);
-		EnhancedInput->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		EnhancedInput->BindAction(JumpAction, ETriggerEvent::Started, this, &ASlashCharacter::Jump);
 		EnhancedInput->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ASlashCharacter::EquipItem);
 		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack);
+	}
+}
+
+void ASlashCharacter::Jump()
+{
+	if (IsUnoccupied())
+	{
+		Super::Jump();
 	}
 }
 
@@ -108,15 +119,8 @@ void ASlashCharacter::HitReactionEnd()
 void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
-		{
-			Subsystem->AddMappingContext(SlashContext, 0);
-		}
-	}
-
+	InitInput();
+	InitSlashOverlay();
 	Tags.Add("EngagableActor");
 }
 
@@ -127,7 +131,7 @@ void ASlashCharacter::PlayEquipMontage(FName SectionName)
 
 bool ASlashCharacter::CanAttack()
 {
-	return CharacterState != ECharacterState::ECS_UnEquipped && ActionState == EActionState::EAS_Unoccupied;
+	return CharacterState != ECharacterState::ECS_UnEquipped && IsUnoccupied();
 }
 
 void ASlashCharacter::AttackEnd()
@@ -137,21 +141,21 @@ void ASlashCharacter::AttackEnd()
 
 bool ASlashCharacter::CanArm()
 {
-	return ActionState == EActionState::EAS_Unoccupied &&
+	return IsUnoccupied() &&
 		CharacterState == ECharacterState::ECS_UnEquipped &&
 		EquippedWeapon;
 }
 
 bool ASlashCharacter::CanDisarm()
 {
-	return ActionState == EActionState::EAS_Unoccupied &&
+	return IsUnoccupied() &&
 		CharacterState != ECharacterState::ECS_UnEquipped &&
 		EquippedWeapon;
 }
 
 void ASlashCharacter::Move(const FInputActionValue& Value)
 {
-	if (ActionState != EActionState::EAS_Unoccupied) return;
+	if (!IsUnoccupied()) return;
 	const FVector2D MoveValue = Value.Get<FVector2D>();
 	const FRotator ControlRotation = GetControlRotation();
 	FRotator ControlRotation_YawOnly(0.f, ControlRotation.Yaw, 0.f);
@@ -206,11 +210,61 @@ void ASlashCharacter::Attack(const FInputActionValue& Value)
 	}
 }
 
+void ASlashCharacter::HandleDamage(float DamageAmount)
+{
+	Super::HandleDamage(DamageAmount);
+	if (GetSlashOverlay() && AttributeComp)
+	{
+		GetSlashOverlay()->SetHealthProgress(AttributeComp->GetHealthPercentage());
+	}
+}
+
 void ASlashCharacter::EquipWeapon(AWeapon* OverlappingWeapon)
 {
 	OverlappingWeapon->Equip(GetMesh(), OverlappingWeapon->GetItemArmAttachSocketName(), this, this);
 	OverlappingItem = nullptr;
 	EquippedWeapon = OverlappingWeapon;
 	CharacterState = OverlappingWeapon->GetItemCharacterStateOnEquipped();
+}
+
+void ASlashCharacter::InitInput()
+{
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(SlashContext, 0);
+		}
+	}
+}
+
+USlashOverlay* ASlashCharacter::GetSlashOverlay()
+{
+	if (SlashHUDInst)
+	{
+		return SlashHUDInst->GetSlashOverlay();
+	}
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		SlashHUDInst = Cast<ASlashHUD>(PlayerController->GetHUD());
+		if (SlashHUDInst) return SlashHUDInst->GetSlashOverlay();
+	}
+	return nullptr;
+}
+
+void ASlashCharacter::InitSlashOverlay()
+{
+	if (USlashOverlay* SlashOverlay = GetSlashOverlay())
+	{
+		SlashOverlay->SetHealthProgress(AttributeComp->GetHealthPercentage());
+		SlashOverlay->SetStaminaProgress(1.f);
+		SlashOverlay->SetCoinCount(0);
+		SlashOverlay->SetSoulCount(0);
+	}
+}
+
+bool ASlashCharacter::IsUnoccupied() const
+{
+	return ActionState == EActionState::EAS_Unoccupied;
 }
 
