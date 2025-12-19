@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
 #include "MotionWarpingComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -65,7 +66,11 @@ bool ABaseCharacter::CanAttack()
 
 void ABaseCharacter::Die()
 {
-
+	PlayDeathMontage();
+	DisableCapsuleCollision();
+	DisableMeshCollision();
+	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCharacterMovement()->bOrientRotationToMovement = false;
 }
 
 bool ABaseCharacter::IsAlive()
@@ -119,7 +124,13 @@ void ABaseCharacter::PlayHitMontage(FName SectionName)
 
 int32 ABaseCharacter::PlayDeathMontage()
 {
-	return PlayRandomMontageSection(DeathMontage, DeathSections);
+	const int32 SectionIndex = PlayRandomMontageSection(DeathMontage, DeathSections);
+	TEnumAsByte<EDeadPose> Pose(SectionIndex);
+	if (SectionIndex >= 0 && Pose < EDeadPose::EDP_MAX)
+	{
+		DeadPose = Pose;
+	}
+	return SectionIndex;
 }
 
 int32 ABaseCharacter::PlayAttackMontage()

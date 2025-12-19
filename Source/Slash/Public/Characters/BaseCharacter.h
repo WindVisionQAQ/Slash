@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interface/HitInterface.h"
+#include "Characters/SlashCharacterTypes.h"
 #include "BaseCharacter.generated.h"
 
 class AWeapon;
@@ -21,6 +22,7 @@ public:
 	ABaseCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, const AActor* HitInstigator) override;
+	FORCEINLINE TEnumAsByte<EDeadPose> GetDeadPose() const { return DeadPose; }
 
 	UFUNCTION(BlueprintCallable)
 	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
@@ -82,5 +84,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	UMotionWarpingComponent* MotionWarpingComp;
+
+	UPROPERTY(BlueprintReadOnly)
+	TEnumAsByte<EDeadPose> DeadPose;
 
 };

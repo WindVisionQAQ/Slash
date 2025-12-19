@@ -32,7 +32,6 @@ protected:
 	virtual bool CanAttack() override;
 	virtual void AttackEnd() override;
 	virtual void HandleDamage(float DamageAmount) override;
-	virtual int32 PlayDeathMontage() override;
 private:
 	void MoveToActor(AActor* TargetActor);
 	bool IsNearTargetActor(AActor* TargetActor, float DistanceThreshold);
@@ -79,9 +78,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
-
-	UPROPERTY(BlueprintReadOnly)
-	TEnumAsByte<EDeadPose> DeadPose;
 private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Health")

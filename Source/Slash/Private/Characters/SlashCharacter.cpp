@@ -56,7 +56,7 @@ void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint, const AA
 {
 	Super::GetHit_Implementation(ImpactPoint, HitInstigator);
 	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
-	ActionState = EActionState::EAS_HitReacting;
+	if (IsAlive()) ActionState = EActionState::EAS_HitReacting;
 }
 
 float ASlashCharacter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -91,6 +91,13 @@ void ASlashCharacter::Jump()
 	{
 		Super::Jump();
 	}
+}
+
+void ASlashCharacter::Die()
+{
+	Super::Die();
+	ActionState = EActionState::EAS_Dead;
+	Tags.Add("Dead");
 }
 
 void ASlashCharacter::Arm()

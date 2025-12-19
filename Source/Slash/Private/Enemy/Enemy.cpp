@@ -99,15 +99,11 @@ void AEnemy::Destroyed()
 
 void AEnemy::Die()
 {
+	Super::Die();
 	EnemyState = EEnemyState::EES_Dead;
 	ClearAttackTimer();
-	PlayDeathMontage();
-	DisableCapsuleCollision();
-	DisableMeshCollision();
 	HideHealthBar();
 	SetLifeSpan(DeathLifeSpan);
-	GetCharacterMovement()->bOrientRotationToMovement = false;
-	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AEnemy::Attack()
@@ -141,17 +137,6 @@ void AEnemy::HandleDamage(float DamageAmount)
 	}
 }
 
-int32 AEnemy::PlayDeathMontage()
-{
-	const int32 SectionIndex = Super::PlayDeathMontage();
-	TEnumAsByte<EDeadPose> Pose(SectionIndex);
-	if (SectionIndex >= 0 && Pose < EDeadPose::EDP_MAX)
-	{
-		DeadPose = Pose;
-	}
-	return SectionIndex;
-}
-
 void AEnemy::MoveToActor(AActor* TargetActor)
 {
 	if (!EnemyController || !TargetActor) return;
@@ -169,6 +154,10 @@ bool AEnemy::IsNearTargetActor(AActor* TargetActor, float DistanceThreshold)
 
 void AEnemy::CheckCombatTarget()
 {
+	if (CombatTarget && CombatTarget->ActorHasTag("Dead"))
+	{
+		CombatTarget = nullptr;
+	}
 	if (IsOutsideCombatRadius())
 	{
 		ClearAttackTimer();
