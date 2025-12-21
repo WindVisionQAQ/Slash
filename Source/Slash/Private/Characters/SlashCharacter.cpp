@@ -17,6 +17,7 @@
 #include "HUD/SlashOverlay.h"
 #include "Components/AttributeComponent.h"
 #include "Items/Soul.h"
+#include "Items/Treasure.h"
 
 ASlashCharacter::ASlashCharacter()
 {
@@ -101,9 +102,22 @@ void ASlashCharacter::Die()
 	Tags.Add("Dead");
 }
 
-void ASlashCharacter::AddSoul(class ASoul* Soul)
+void ASlashCharacter::AddSoul(ASoul* Soul)
 {
-	UE_LOG(LogTemp, Warning, TEXT("SlashCharacter AddSoul"));
+	if (Soul && AttributeComp && GetSlashOverlay())
+	{
+		AttributeComp->AddSouls(Soul->GetSouls());
+		GetSlashOverlay()->SetSoulCount(AttributeComp->GetSouls());
+	}
+}
+
+void ASlashCharacter::AddGold(ATreasure* Treasure)
+{
+	if (Treasure && AttributeComp && GetSlashOverlay())
+	{
+		AttributeComp->AddGold(Treasure->GetGold());
+		GetSlashOverlay()->SetCoinCount(AttributeComp->GetGold());
+	}
 }
 
 void ASlashCharacter::Arm()

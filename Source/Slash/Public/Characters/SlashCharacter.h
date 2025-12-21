@@ -36,6 +36,7 @@ public:
 	FORCEINLINE AItem* GetOverlappingItem() const { return OverlappingItem; }
 	virtual void SetOverlappingItem(AItem* Item) override { OverlappingItem = Item; }
 	virtual void AddSoul(class ASoul* Soul) override;
+	virtual void AddGold(class ATreasure* Treasure) override;
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
 	FORCEINLINE EActionState GetActionState() const { return ActionState; }
 

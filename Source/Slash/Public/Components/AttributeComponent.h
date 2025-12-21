@@ -18,14 +18,24 @@ public:
 	void ReceiveDamage(float Damage);
 	float GetHealthPercentage() const;
 	bool IsAlive() const;
+	FORCEINLINE int32 GetSouls() const { return Soul; }
+	FORCEINLINE int32 GetGold() const { return Gold; }
+	void AddSouls(int32 NumberOfSouls);
+	void AddGold(int32 AmountOfGold);
 protected:
 	virtual void BeginPlay() override;
 
 private:
 	// Current health
-	UPROPERTY(EditAnywhere, Category = "Health")
+	UPROPERTY(EditAnywhere, Category = "Attributes")
 	float Health;
 
-	UPROPERTY(EditAnywhere, Category = "Health")
+	UPROPERTY(EditAnywhere, Category = "Attributes")
 	float MaxHealth;
+
+	UPROPERTY(EditAnywhere, Category = "Attributes")
+	int32 Soul = 0;
+
+	UPROPERTY(EditAnywhere, Category = "Attributes")
+	int32 Gold = 0;
 };

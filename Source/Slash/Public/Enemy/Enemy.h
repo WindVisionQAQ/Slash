@@ -55,6 +55,7 @@ private:
 	bool IsDead();
 	bool IsEngaged();
 	void InitWeapon();
+	void SpawnSoul();
 	UFUNCTION()
 	void HandlePawnSeen(APawn* SeenPawn);
 protected:
@@ -75,6 +76,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	float DeathLifeSpan = 3.f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TSubclassOf<class ASoul> SpawnedSoulClass;
 
 	UPROPERTY(BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;

@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/PawnSensingComponent.h"
 #include "Items/Weapon.h"
+#include "Items/Soul.h"
 
 AEnemy::AEnemy()
 {
@@ -103,6 +104,7 @@ void AEnemy::Die()
 	EnemyState = EEnemyState::EES_Dead;
 	ClearAttackTimer();
 	HideHealthBar();
+	SpawnSoul();
 	SetLifeSpan(DeathLifeSpan);
 }
 
@@ -302,6 +304,19 @@ void AEnemy::InitWeapon()
 		if (EquippedWeapon)
 		{
 			EquippedWeapon->Equip(GetMesh(), EquippedWeapon->GetItemArmAttachSocketName(), this, this, false);
+		}
+	}
+}
+
+void AEnemy::SpawnSoul()
+{
+	UWorld* World = GetWorld();
+	if (World && SpawnedSoulClass && AttributeComp)
+	{
+		ASoul* SpawnedSoul = World->SpawnActor<ASoul>(SpawnedSoulClass, GetActorLocation(), GetActorRotation());
+		if (SpawnedSoul)
+		{
+			SpawnedSoul->SetSoul(AttributeComp->GetSouls());
 		}
 	}
 }
