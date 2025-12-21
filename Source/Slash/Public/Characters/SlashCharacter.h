@@ -6,6 +6,7 @@
 #include "Characters/BaseCharacter.h"
 #include "InputActionValue.h"
 #include "SlashCharacterTypes.h"
+#include "Interface/PickInterface.h"
 #include "SlashCharacter.generated.h"
 
 class USpringArmComponent;
@@ -20,7 +21,7 @@ class ASlashHUD;
 class USlashOverlay;
 
 UCLASS()
-class SLASH_API ASlashCharacter : public ABaseCharacter
+class SLASH_API ASlashCharacter : public ABaseCharacter, public IPickInterface
 {
 	GENERATED_BODY()
 
@@ -33,7 +34,8 @@ public:
 	virtual void Jump() override;
 	virtual void Die() override;
 	FORCEINLINE AItem* GetOverlappingItem() const { return OverlappingItem; }
-	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
+	virtual void SetOverlappingItem(AItem* Item) override { OverlappingItem = Item; }
+	virtual void AddSoul(class ASoul* Soul) override;
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
 	FORCEINLINE EActionState GetActionState() const { return ActionState; }
 

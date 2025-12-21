@@ -10,6 +10,8 @@
 class UStaticMeshComponent;
 class USphereComponent;
 class UNiagaraComponent;
+class UNiagaraSystem;
+class USoundBase;
 
 enum class EItemState : uint8
 {
@@ -43,6 +45,9 @@ protected:
 	UFUNCTION()
 	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	void SpawnPickupSound();
+	void SpawnPickupEffect();
+
 public:
 	FORCEINLINE ECharacterState GetItemCharacterStateOnEquipped() const { return CharacterStateOnEquipped; }
 	FORCEINLINE FName GetItemArmAttachSocketName() const { return ItemArmAttachSocketName; }
@@ -74,6 +79,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Visual Effects")
 	UNiagaraComponent* EmberComponent;
+
+	UPROPERTY(EditAnywhere, Category = "Item")
+	UNiagaraSystem* PickUpEffect;
+
+	UPROPERTY(EditAnywhere, Category = "Item")
+	USoundBase* PickUpSound;
 
 private:
 

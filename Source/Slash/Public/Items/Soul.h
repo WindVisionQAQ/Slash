@@ -4,23 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Items/Item.h"
-#include "Treasure.generated.h"
-
-class USoundBase;
+#include "Soul.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SLASH_API ATreasure : public AItem
+class SLASH_API ASoul : public AItem
 {
 	GENERATED_BODY()
-
 protected:
 	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
-
 private:
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Treasure Properties")
-	int32 Gold;
+	UPROPERTY(EditAnywhere)
+	int32 SoulAmount = 1;
 };

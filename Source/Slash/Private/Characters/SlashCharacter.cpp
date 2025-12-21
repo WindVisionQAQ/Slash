@@ -16,6 +16,7 @@
 #include "HUD/SlashHUD.h"
 #include "HUD/SlashOverlay.h"
 #include "Components/AttributeComponent.h"
+#include "Items/Soul.h"
 
 ASlashCharacter::ASlashCharacter()
 {
@@ -98,6 +99,11 @@ void ASlashCharacter::Die()
 	Super::Die();
 	ActionState = EActionState::EAS_Dead;
 	Tags.Add("Dead");
+}
+
+void ASlashCharacter::AddSoul(class ASoul* Soul)
+{
+	UE_LOG(LogTemp, Warning, TEXT("SlashCharacter AddSoul"));
 }
 
 void ASlashCharacter::Arm()
