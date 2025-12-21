@@ -14,12 +14,16 @@ class SLASH_API UAttributeComponent : public UActorComponent
 
 public:	
 	UAttributeComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	void ReceiveDamage(float Damage);
+	void UseStamina(float InStaminaCost);
+	void RegenStamina(float DeltaTime);
 	float GetHealthPercentage() const;
+	float GetStaminaPercent() const;
 	bool IsAlive() const;
 	FORCEINLINE int32 GetSouls() const { return Soul; }
 	FORCEINLINE int32 GetGold() const { return Gold; }
+	FORCEINLINE int32 GetStamina() const { return Stamina; }
+	FORCEINLINE int32 GetDodgetCost() const { return DodgeCost; }
 	void AddSouls(int32 NumberOfSouls);
 	void AddGold(int32 AmountOfGold);
 protected:
@@ -32,6 +36,18 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Attributes")
 	float MaxHealth;
+
+	UPROPERTY(EditAnywhere, Category = "Attributes")
+	float Stamina;
+
+	UPROPERTY(EditAnywhere, Category = "Attributes")
+	float MaxStamina;
+
+	UPROPERTY(EditAnywhere, Category = "Attributes")
+	float DodgeCost = 14.f;
+
+	UPROPERTY(EditAnywhere, Category = "Attributes")
+	float StaminaRegenRate = 4.f;
 
 	UPROPERTY(EditAnywhere, Category = "Attributes")
 	int32 Soul = 0;

@@ -70,7 +70,7 @@ float ASlashCharacter::TakeDamage(float Damage, struct FDamageEvent const& Damag
 void ASlashCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	RegenStamina(DeltaTime);
 }
 
 void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -84,6 +84,7 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedInput->BindAction(JumpAction, ETriggerEvent::Started, this, &ASlashCharacter::Jump);
 		EnhancedInput->BindAction(EquipAction, ETriggerEvent::Triggered, this, &ASlashCharacter::EquipItem);
 		EnhancedInput->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack);
+		EnhancedInput->BindAction(DodgeAction, ETriggerEvent::Started, this, &ASlashCharacter::Dodge);
 	}
 }
 
@@ -139,6 +140,11 @@ void ASlashCharacter::Disarm()
 }
 
 void ASlashCharacter::HitReactionEnd()
+{
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
+void ASlashCharacter::DodgeEnd()
 {
 	ActionState = EActionState::EAS_Unoccupied;
 }
@@ -237,6 +243,18 @@ void ASlashCharacter::Attack(const FInputActionValue& Value)
 	}
 }
 
+void ASlashCharacter::Dodge(const FInputActionValue& Value)
+{
+	if (!IsUnoccupied() || !HasEnoughStaminaToDodge()) return;
+	PlayDodgeMontage();
+	ActionState = EActionState::EAS_Dodging;
+	if (AttributeComp && GetSlashOverlay())
+	{
+		AttributeComp->UseStamina(AttributeComp->GetDodgetCost());
+		GetSlashOverlay()->SetStaminaProgress(AttributeComp->GetStaminaPercent());
+	}
+}
+
 void ASlashCharacter::HandleDamage(float DamageAmount)
 {
 	Super::HandleDamage(DamageAmount);
@@ -293,5 +311,19 @@ void ASlashCharacter::InitSlashOverlay()
 bool ASlashCharacter::IsUnoccupied() const
 {
 	return ActionState == EActionState::EAS_Unoccupied;
+}
+
+bool ASlashCharacter::HasEnoughStaminaToDodge() const
+{
+	return AttributeComp && AttributeComp->GetStamina() >= AttributeComp->GetDodgetCost();
+}
+
+void ASlashCharacter::RegenStamina(float DeltaTime)
+{
+	if (AttributeComp && GetSlashOverlay())
+	{
+		AttributeComp->RegenStamina(DeltaTime);
+		GetSlashOverlay()->SetStaminaProgress(AttributeComp->GetStaminaPercent());
+	}
 }
 

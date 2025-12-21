@@ -211,6 +211,11 @@ FVector ABaseCharacter::GetRotationTarget()
 	return CombatTarget ? CombatTarget->GetActorLocation() : FVector();
 }
 
+void ABaseCharacter::PlayDodgeMontage()
+{
+	PlayMontageSection(DodgeMontage, FName(TEXT("Default")));
+}
+
 void ABaseCharacter::AttackEnd()
 {
 

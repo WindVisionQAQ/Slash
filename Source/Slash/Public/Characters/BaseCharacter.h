@@ -45,6 +45,7 @@ protected:
 	void StopAttackMontage();
 	FVector GetTranslationTarget();
 	FVector GetRotationTarget();
+	void PlayDodgeMontage();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackEnd();
@@ -69,6 +70,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Montages)
 	UAnimMontage* AttackMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = Montages)
+	UAnimMontage* DodgeMontage;
 
 	UPROPERTY(BlueprintReadOnly)
 	AActor* CombatTarget;

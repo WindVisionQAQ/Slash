@@ -50,6 +50,8 @@ public:
 	void Disarm();
 	UFUNCTION(BlueprintCallable)
 	void HitReactionEnd();
+	UFUNCTION(BlueprintCallable)
+	void DodgeEnd();
 protected:
 	virtual void BeginPlay() override;
 	void PlayEquipMontage(FName SectionName);
@@ -61,6 +63,7 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void EquipItem(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
+	void Dodge(const FInputActionValue& Value);
 	virtual void HandleDamage(float DamageAmount);
 private:
 	void EquipWeapon(AWeapon* OverlappingWeapon);
@@ -68,6 +71,8 @@ private:
 	USlashOverlay* GetSlashOverlay();
 	void InitSlashOverlay();
 	bool IsUnoccupied() const;
+	bool HasEnoughStaminaToDodge() const;
+	void RegenStamina(float DeltaTime);
 protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputMappingContext* SlashContext;
@@ -86,6 +91,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* AttackAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* DodgeAction;
 private:
 	ECharacterState CharacterState = ECharacterState::ECS_UnEquipped;
 	EActionState ActionState = EActionState::EAS_Unoccupied;
